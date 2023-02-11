@@ -6,4 +6,42 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintWidth_max="500dp"
+        app:layout_constraintHeight_max="1000dp"
+        app:layout_constraintDimensionRatio="1:2"
+        android:id="@+id/main_container_cl">
+
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/main_pager"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/bottomNavigationView"
+            android:orientation="horizontal"/>
+
+        <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:id="@+id/bottomNavigationView"
+            android:layout_width="0dp"
+            android:layout_height="70dp"
+            app:labelVisibilityMode="labeled"
+            app:layout_constraintTop_toBottomOf="@+id/main_pager"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:itemBackground="@color/white"
+            app:menu="@menu/bottom_nav"
+            app:itemIconTint="@color/bottom_nav"
+            app:itemTextColor="@color/bottom_nav"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

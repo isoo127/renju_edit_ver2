@@ -1,15 +1,23 @@
 package com.renju_note.isoo
 
-import android.annotation.SuppressLint
 import android.os.Bundle
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.renju_note.isoo.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
 
-    @SuppressLint("ClickableViewAccessibility", "SetJavaScriptEnabled")
+    private lateinit var binding : ActivityMainBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        binding.mainContainerCl.addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
+            Toast.makeText(applicationContext, "width : ${binding.mainContainerCl.width}" +
+                    ", height : ${binding.mainContainerCl.height}", Toast.LENGTH_LONG).show()
+        }
     }
 
 }

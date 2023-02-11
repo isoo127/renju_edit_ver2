@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">Renju Edit</string>
+    <string name="board">Board</string>
+    <string name="setting">Setting</string>
+    <string name="storage">Storage</string>
 </resources>
