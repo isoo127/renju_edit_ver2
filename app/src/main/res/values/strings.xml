@@ -3,4 +3,9 @@
     <string name="board">Board</string>
     <string name="setting">Setting</string>
     <string name="storage">Storage</string>
+
+    <string name="undo_all">&#8920;</string>
+    <string name="undo">&lt;</string>
+    <string name="redo">&gt;</string>
+    <string name="redo_all">&#8921;</string>
 </resources>
