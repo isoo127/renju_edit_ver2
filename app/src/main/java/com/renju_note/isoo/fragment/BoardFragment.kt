@@ -1,19 +1,17 @@
 package com.renju_note.isoo.fragment
 
 import android.os.Bundle
-import android.util.DisplayMetrics
-import android.util.Log
 import android.util.TypedValue
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import androidx.fragment.app.Fragment
+import com.renju_note.isoo.R
 import com.renju_note.isoo.databinding.FragmentBoardBinding
 import com.renju_note.isoo.util.BoardLayout
 
 class BoardFragment : Fragment() {
 
     private lateinit var binding : FragmentBoardBinding
+    var index = 1
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -22,14 +20,19 @@ class BoardFragment : Fragment() {
     ): View? {
         binding = FragmentBoardBinding.inflate(inflater, container, false)
         setTextSize()
+        binding.boardToolbar.inflateMenu(R.menu.board_toolbar)
+        binding.boardToolbar.title = resources.getString(R.string.app_name)
 
         binding.boardBoard.setOnBoardTouchListener(object : BoardLayout.OnBoardTouchListener() {
             override fun getCoordinates(x: Int, y: Int, realX: Float, realY: Float) {
                 val id = binding.boardBoard.generateStoneID(x, y)
-                val stone = binding.boardBoard.Stone(BoardLayout.StoneType.BLACK, "1", realX, realY)
+                val stone =
+                    if(index % 2 == 1) binding.boardBoard.Stone(BoardLayout.StoneType.BLACK, "$index", realX, realY)
+                    else binding.boardBoard.Stone(BoardLayout.StoneType.WHITE, "$index", realX, realY)
                 val list = ArrayList<Pair<String, BoardLayout.Stone>>()
                 list.add(Pair(id, stone))
                 binding.boardBoard.placeStones(list, null)
+                index++
             }
         })
 

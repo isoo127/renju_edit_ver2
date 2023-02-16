@@ -8,4 +8,11 @@
     <string name="undo">&lt;</string>
     <string name="redo">&gt;</string>
     <string name="redo_all">&#8921;</string>
+
+    <string name="save">Save</string>
+    <string name="screenshot">Capture</string>
+    <string name="save_external">Save As</string>
+    <string name="new_file">New File</string>
+    <string name="load">Load File</string>
+    <string name="about">About</string>
 </resources>

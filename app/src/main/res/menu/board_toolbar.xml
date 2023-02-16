@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/save_board"
+        android:icon="@drawable/board_save"
+        android:title="@string/save"
+        app:showAsAction="always"/>
+
+    <item
+        android:id="@+id/action_capture"
+        android:icon="@drawable/board_capture"
+        android:title="@string/screenshot"
+        app:showAsAction="ifRoom"/>
+
+    <item android:title="@string/new_file"
+        android:id="@+id/new_board"/>
+    <item android:title="@string/save_external"
+        android:id="@+id/save_board_as"/>
+    <item android:title="@string/load"
+        android:id="@+id/load_board"/>
+    <item android:title="@string/about"
+        android:id="@+id/about"/>
+
+</menu>

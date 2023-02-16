@@ -5,169 +5,198 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/board_container_cl"
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        android:layout_height="match_parent"
+        android:scrollbars="none">
 
-        <EditText
-            android:id="@+id/board_text_area_et"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            app:layout_constraintDimensionRatio="19:2"
-            app:layout_constraintStart_toStartOf="@id/board_board"
-            app:layout_constraintEnd_toEndOf="@id/board_board"
-            app:layout_constraintTop_toTopOf="parent"
-            android:layout_marginTop="5dp"
-            android:background="@color/default_blue"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
 
-        <com.renju_note.isoo.util.BoardLayout
-            android:id="@+id/board_board"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            app:layout_constraintDimensionRatio="1:1"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/board_text_area_et"
-            app:layout_constraintBottom_toBottomOf="parent"
-            android:layout_margin="5dp"/>
+            <androidx.appcompat.widget.Toolbar
+                android:id="@+id/board_toolbar"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:layout_marginTop="5dp"
+                android:background="@color/white"
+                android:minHeight="?attr/actionBarSize"
+                android:theme="?attr/actionBarTheme"
+                app:popupTheme="@style/MyToolBarTheme"
+                app:titleTextAppearance="@style/Toolbar.TitleText"/>
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/board_container_cl"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/board_toolbar"
+                android:background="@color/white">
 
-    <LinearLayout
-        android:id="@+id/board_button_container_ll"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:orientation="horizontal"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/board_container_cl">
+                <EditText
+                    android:id="@+id/board_text_area_et"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    app:layout_constraintDimensionRatio="19:2"
+                    app:layout_constraintStart_toStartOf="@id/board_board"
+                    app:layout_constraintEnd_toEndOf="@id/board_board"
+                    app:layout_constraintTop_toTopOf="parent"
+                    android:layout_marginTop="5dp"
+                    android:background="@color/default_blue"/>
 
-        <ImageButton
-            android:id="@+id/board_delete"
-            style="@android:style/Widget.Material.Button.Borderless"
-            android:layout_width="0dp"
-            android:layout_height="50dp"
-            android:layout_gravity="center|center_vertical"
-            android:layout_marginStart="2dp"
-            android:layout_marginEnd="2dp"
-            android:layout_marginBottom="2dp"
-            android:layout_weight="0.8"
-            android:padding="13dp"
-            android:scaleType="fitCenter"
-            android:src="@drawable/board_delete"/>
+                <com.renju_note.isoo.util.BoardLayout
+                    android:id="@+id/board_board"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    app:layout_constraintDimensionRatio="1:1"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/board_text_area_et"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    android:layout_margin="5dp"/>
 
-        <Button
-            android:id="@+id/board_undo_all_btn"
-            style="@android:style/Widget.Material.Button.Borderless"
-            android:layout_width="0dp"
-            android:layout_height="50dp"
-            android:layout_marginLeft="2dp"
-            android:layout_marginRight="2dp"
-            android:layout_marginBottom="2dp"
-            android:layout_weight="1"
-            android:fontFamily="monospace"
-            android:text="@string/undo_all"
-            android:textColor="@color/default_gray"
-            android:textSize="18dp"
-            android:textStyle="normal"
-            app:backgroundTint="@color/white"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            tools:ignore="SpUsage" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <Button
-            android:id="@+id/board_undo_button_btn"
-            style="@android:style/Widget.Material.Button.Borderless"
-            android:layout_width="0dp"
-            android:layout_height="50dp"
-            android:layout_marginLeft="2dp"
-            android:layout_marginRight="2dp"
-            android:layout_marginBottom="2dp"
-            android:layout_weight="1"
-            android:fontFamily="monospace"
-            android:text="@string/undo"
-            android:textColor="@color/default_gray"
-            android:textSize="18dp"
-            android:textStyle="normal"
-            app:backgroundTint="@color/white"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            tools:ignore="SpUsage" />
+            <LinearLayout
+                android:id="@+id/board_button_container_ll"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="horizontal"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/board_container_cl">
 
-        <TextView
-            android:id="@+id/board_sequence_tv"
-            android:layout_width="0dp"
-            android:layout_height="50dp"
-            android:layout_gravity="center"
-            android:layout_marginTop="0dp"
-            android:layout_weight="0.8"
-            android:fontFamily="monospace"
-            android:gravity="center"
-            android:text="0"
-            android:textSize="18dp"
-            android:textStyle="bold"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:ignore="HardcodedText,SpUsage" />
+                <ImageButton
+                    android:id="@+id/board_delete"
+                    style="@android:style/Widget.Material.Button.Borderless"
+                    android:layout_width="0dp"
+                    android:layout_height="50dp"
+                    android:layout_gravity="center|center_vertical"
+                    android:layout_marginStart="2dp"
+                    android:layout_marginEnd="2dp"
+                    android:layout_marginBottom="2dp"
+                    android:layout_weight="0.8"
+                    android:padding="13dp"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/board_delete"/>
 
-        <Button
-            android:id="@+id/board_redo_btn"
-            style="@android:style/Widget.Material.Button.Borderless"
-            android:layout_width="0dp"
-            android:layout_height="50dp"
-            android:layout_marginLeft="2dp"
-            android:layout_marginRight="2dp"
-            android:layout_marginBottom="2dp"
-            android:layout_weight="1"
-            android:fontFamily="monospace"
-            android:text="@string/redo"
-            android:textColor="@color/default_gray"
-            android:textSize="18dp"
-            android:textStyle="normal"
-            app:backgroundTint="@color/white"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            tools:ignore="SpUsage" />
+                <Button
+                    android:id="@+id/board_undo_all_btn"
+                    style="@android:style/Widget.Material.Button.Borderless"
+                    android:layout_width="0dp"
+                    android:layout_height="50dp"
+                    android:layout_marginLeft="2dp"
+                    android:layout_marginRight="2dp"
+                    android:layout_marginBottom="2dp"
+                    android:layout_weight="1"
+                    android:fontFamily="monospace"
+                    android:text="@string/undo_all"
+                    android:textColor="@color/default_gray"
+                    android:textSize="18dp"
+                    android:textStyle="normal"
+                    app:backgroundTint="@color/white"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    tools:ignore="SpUsage" />
 
-        <Button
-            android:id="@+id/board_redo_all_btn"
-            style="@android:style/Widget.Material.Button.Borderless"
-            android:layout_width="0dp"
-            android:layout_height="50dp"
-            android:layout_marginLeft="2dp"
-            android:layout_marginRight="2dp"
-            android:layout_marginBottom="2dp"
-            android:layout_weight="1"
-            android:fontFamily="monospace"
-            android:text="@string/redo_all"
-            android:textColor="@color/default_gray"
-            android:textSize="18dp"
-            android:textStyle="normal"
-            app:backgroundTint="@color/white"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            tools:ignore="SpUsage" />
+                <Button
+                    android:id="@+id/board_undo_button_btn"
+                    style="@android:style/Widget.Material.Button.Borderless"
+                    android:layout_width="0dp"
+                    android:layout_height="50dp"
+                    android:layout_marginLeft="2dp"
+                    android:layout_marginRight="2dp"
+                    android:layout_marginBottom="2dp"
+                    android:layout_weight="1"
+                    android:fontFamily="monospace"
+                    android:text="@string/undo"
+                    android:textColor="@color/default_gray"
+                    android:textSize="18dp"
+                    android:textStyle="normal"
+                    app:backgroundTint="@color/white"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    tools:ignore="SpUsage" />
 
-        <ImageButton
-            android:id="@+id/board_mode_btn"
-            style="@android:style/Widget.Material.Button.Borderless"
-            android:layout_width="0dp"
-            android:layout_height="50dp"
-            android:layout_gravity="center|center_vertical"
-            android:layout_marginStart="2dp"
-            android:layout_marginEnd="2dp"
-            android:layout_marginBottom="2dp"
-            android:layout_weight="0.8"
-            android:padding="14dp"
-            android:scaleType="fitCenter"
-            android:src="@drawable/board_stone_mode" />
+                <TextView
+                    android:id="@+id/board_sequence_tv"
+                    android:layout_width="0dp"
+                    android:layout_height="50dp"
+                    android:layout_gravity="center"
+                    android:layout_marginTop="0dp"
+                    android:layout_weight="0.8"
+                    android:fontFamily="monospace"
+                    android:gravity="center"
+                    android:text="0"
+                    android:textSize="18dp"
+                    android:textStyle="bold"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:ignore="HardcodedText,SpUsage" />
 
-    </LinearLayout>
+                <Button
+                    android:id="@+id/board_redo_btn"
+                    style="@android:style/Widget.Material.Button.Borderless"
+                    android:layout_width="0dp"
+                    android:layout_height="50dp"
+                    android:layout_marginLeft="2dp"
+                    android:layout_marginRight="2dp"
+                    android:layout_marginBottom="2dp"
+                    android:layout_weight="1"
+                    android:fontFamily="monospace"
+                    android:text="@string/redo"
+                    android:textColor="@color/default_gray"
+                    android:textSize="18dp"
+                    android:textStyle="normal"
+                    app:backgroundTint="@color/white"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    tools:ignore="SpUsage" />
+
+                <Button
+                    android:id="@+id/board_redo_all_btn"
+                    style="@android:style/Widget.Material.Button.Borderless"
+                    android:layout_width="0dp"
+                    android:layout_height="50dp"
+                    android:layout_marginLeft="2dp"
+                    android:layout_marginRight="2dp"
+                    android:layout_marginBottom="2dp"
+                    android:layout_weight="1"
+                    android:fontFamily="monospace"
+                    android:text="@string/redo_all"
+                    android:textColor="@color/default_gray"
+                    android:textSize="18dp"
+                    android:textStyle="normal"
+                    app:backgroundTint="@color/white"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    tools:ignore="SpUsage" />
+
+                <ImageButton
+                    android:id="@+id/board_mode_btn"
+                    style="@android:style/Widget.Material.Button.Borderless"
+                    android:layout_width="0dp"
+                    android:layout_height="50dp"
+                    android:layout_gravity="center|center_vertical"
+                    android:layout_marginStart="2dp"
+                    android:layout_marginEnd="2dp"
+                    android:layout_marginBottom="2dp"
+                    android:layout_weight="0.8"
+                    android:padding="14dp"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/board_stone_mode" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </ScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
