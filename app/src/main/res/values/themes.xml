@@ -12,6 +12,7 @@
         <!-- Status bar color. -->
         <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
         <!-- Customize your theme here. -->
+        <item name="fontFamily">@font/spoqa_regular</item>
     </style>
 
     <style name="MyToolBarTheme" parent="@style/Widget.AppCompat.PopupMenu">
