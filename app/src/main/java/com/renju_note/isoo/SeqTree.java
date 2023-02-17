@@ -1,7 +1,13 @@
-package com.renju_note.isoo.data;
+package com.renju_note.isoo;
 
 import java.io.Serializable;
 
+/*
+now_board information
+black stone : 1
+white stone : -1
+no stone : 0
+ */
 public class SeqTree implements Serializable {
     private static final long serialVersionUID = 2765198187236704398L;
 
@@ -92,17 +98,17 @@ public class SeqTree implements Serializable {
             current_node.chlid = newChild;
             now = newChild;
             if((nowSequence % 2) == 0) // mean black
-                now_board[x][y] = 1;
+                now_board[x][y] = nowSequence;
             else // mean white
-                now_board[x][y] = -1;
+                now_board[x][y] = -1 * nowSequence;
         } else {
             for(Node temp = current_node.chlid;temp != null;temp = temp.next) {
                 if(temp.x == x && temp.y == y) {
                     now = temp;
                     if((nowSequence % 2) == 0)
-                        now_board[x][y] = 1;
+                        now_board[x][y] = nowSequence;
                     else
-                        now_board[x][y] = -1;
+                        now_board[x][y] = -1 * nowSequence;
                     return;
                 }
                 if(temp.next == null) {
@@ -111,9 +117,9 @@ public class SeqTree implements Serializable {
                     temp.next = newNext;
                     now = newNext;
                     if((nowSequence % 2) == 0)
-                        now_board[x][y] = 1;
+                        now_board[x][y] = nowSequence;
                     else
-                        now_board[x][y] = -1;
+                        now_board[x][y] = -1 * nowSequence;
                     return;
                 }
             }
@@ -129,9 +135,9 @@ public class SeqTree implements Serializable {
         if(current_node.chlid != null && current_node.chlid.next == null) {
             now = current_node.getChild();
             if((nowSequence % 2) == 0)
-                now_board[current_node.getChild().getX()][current_node.getChild().getY()] = 1;
+                now_board[current_node.getChild().getX()][current_node.getChild().getY()] = nowSequence;
             else
-                now_board[current_node.getChild().getX()][current_node.getChild().getY()] = -1;
+                now_board[current_node.getChild().getX()][current_node.getChild().getY()] = -1 * nowSequence;
         }
     }
 

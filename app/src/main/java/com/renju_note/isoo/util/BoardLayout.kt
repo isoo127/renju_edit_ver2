@@ -32,7 +32,7 @@ class BoardLayout(context: Context, attrs: AttributeSet?) : ConstraintLayout(con
     inner class Stone(private var type : StoneType, private var text : String, private val x : Float, private val y : Float) {
 
         var viewID = -1
-        var stone : TextView = TextView(context)
+        private var stone : TextView = TextView(context)
 
         fun getStoneType() : StoneType = type
 
@@ -50,8 +50,8 @@ class BoardLayout(context: Context, attrs: AttributeSet?) : ConstraintLayout(con
                     stone.setTextColor(Color.BLACK)
                 }
                 StoneType.BLANK -> {
-                    if(text.isBlank()) {
-                        stone.background = stoneDrawable(boardSetting.lineColor, "#00000000", (lineInterval / 2).toInt())
+                    if(text.isBlank() || text.isEmpty()) {
+                        stone.background = stoneDrawable(boardSetting.nodeColor, "#00000000", (lineInterval / 1.7).toInt())
                     } else {
                         when (text.length) {
                             3 -> stone.background = stoneDrawable(boardSetting.boardColor, "#00000000", (lineInterval / 4).toInt())
@@ -112,7 +112,7 @@ class BoardLayout(context: Context, attrs: AttributeSet?) : ConstraintLayout(con
     }
 
     open class OnBoardTouchListener {
-        open fun getCoordinates(x : Int, y : Int, realX : Float, realY : Float) {
+        open fun getCoordinates(x : Int, y : Int) {
             return
         }
     }
@@ -177,7 +177,7 @@ class BoardLayout(context: Context, attrs: AttributeSet?) : ConstraintLayout(con
                 if (((x - lineInterval / 2) / lineInterval + 0.5).toInt() - 1 >= 0 && ((y + lineInterval / 2) / lineInterval + 0.5).toInt() - 1 < 15) { // if x,y is in board
                     val xc = ((x - lineInterval / 2) / lineInterval + 0.5).toInt() - 1
                     val yc = ((y + lineInterval / 2) / lineInterval + 0.5).toInt() - 1
-                    onBoardTouchListener.getCoordinates(xc, yc, x, y)
+                    onBoardTouchListener.getCoordinates(xc, yc)
                 }
             }
         } catch (e: Exception) {
@@ -223,8 +223,8 @@ class BoardLayout(context: Context, attrs: AttributeSet?) : ConstraintLayout(con
         if (addStones != null) {
             for(addStone in addStones) {
                 if(stones.contains(addStone.first)) {
-                    stones[addStone.first]!!.setStoneType(addStone.second.getStoneType())
                     stones[addStone.first]!!.setStoneText(addStone.second.getText())
+                    stones[addStone.first]!!.setStoneType(addStone.second.getStoneType())
                 } else {
                     stones[addStone.first] = addStone.second
                     addStone.second.addStone(this)
@@ -240,8 +240,10 @@ class BoardLayout(context: Context, attrs: AttributeSet?) : ConstraintLayout(con
         stones.clear()
     }
 
-    fun generateStoneID(x : Int, y : Int) : String {
-        return "$x/$y"
-    }
+    fun generateStoneID(x : Int, y : Int) : String = "$x/$y"
+
+    fun getRealX(x : Int) : Float = (x + 1) * lineInterval + lineInterval / 2
+
+    fun getRealY(y : Int) : Float = (y + 1) * lineInterval - lineInterval / 2
 
 }

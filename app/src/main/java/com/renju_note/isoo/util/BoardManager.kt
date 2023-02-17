@@ -8,20 +8,32 @@ interface BoardManager {
 
     fun getNowBoardStatus() : Array<Array<String>>
 
-    fun getSequence() : String
+    fun setNowTextBoxString(text : String)
 
-    fun getChangeStatus() : Pair<ArrayList<String>, ArrayList<String>>
+    fun getNowTextBoxString() : String
+
+    fun getSequence() : ArrayList<Pair<Int, Int>>
+
+    fun getChangeStatus(before : Array<Array<String>>, after : Array<Array<String>>) : Pair<ArrayList<String>, ArrayList<String>>
 
     fun generateInfoString(type : ElementType, x : Int, y : Int, text : String) : String
 
+    fun infoString2Info(infoString : String) : Pair<Pair<Int, Int>, Pair<ElementType, String>>
+
     fun getNowIndex() : Int
 
-    fun undo()
+    fun undo() : Boolean
 
-    fun redo()
+    fun undoAll() : Boolean
 
-    fun deleteBranch()
+    fun redo() : Boolean
 
-    fun loadNodes()
+    fun deleteBranch() : Boolean
+
+    fun putStone(x : Int, y : Int) : Boolean
+
+    fun addNewChild(x : Int, y : Int, text : String) : Boolean
+
+    fun <T> loadNodes(tree : T)
 
 }

@@ -107,7 +107,7 @@
                     tools:ignore="SpUsage" />
 
                 <Button
-                    android:id="@+id/board_undo_button_btn"
+                    android:id="@+id/board_undo_btn"
                     style="@android:style/Widget.Material.Button.Borderless"
                     android:layout_width="0dp"
                     android:layout_height="50dp"
