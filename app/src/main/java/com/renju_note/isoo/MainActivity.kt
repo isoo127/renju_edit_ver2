@@ -1,5 +1,7 @@
 package com.renju_note.isoo
 
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.MenuItem
 import android.widget.Toast
@@ -10,6 +12,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.renju_note.isoo.databinding.ActivityMainBinding
+import com.renju_note.isoo.dialog.ConfirmDialog
 import com.renju_note.isoo.fragment.BoardFragment
 import com.renju_note.isoo.fragment.SettingFragment
 import com.renju_note.isoo.fragment.StorageFragment
@@ -72,6 +75,19 @@ class MainActivity : AppCompatActivity() {
                 else -> error("no such position: $position")
             }
         }
+    }
+
+    override fun onBackPressed() {
+        val confirmDialog = ConfirmDialog(this, resources.getString(R.string.exit_confirm))
+        confirmDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        confirmDialog.setOnResponseListener(object : ConfirmDialog.OnResponseListener {
+            override fun confirm() {
+                confirmDialog.dismiss()
+                finish()
+            }
+            override fun refuse() { confirmDialog.dismiss() }
+        })
+        confirmDialog.show()
     }
 
 }

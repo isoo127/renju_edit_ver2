@@ -5,6 +5,8 @@ import android.content.ContentValues
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
@@ -23,6 +25,7 @@ import com.renju_note.isoo.RenjuEditApplication.Companion.boardManager
 import com.renju_note.isoo.RenjuEditApplication.Companion.boardSetting
 import com.renju_note.isoo.SeqTree
 import com.renju_note.isoo.databinding.FragmentBoardBinding
+import com.renju_note.isoo.dialog.ConfirmDialog
 import com.renju_note.isoo.util.BoardLayout
 import com.renju_note.isoo.util.BoardManager
 import java.io.*
@@ -59,10 +62,24 @@ class BoardFragment : Fragment() {
 
     private fun buttonsClicked() {
         binding.boardDelete.setOnClickListener {
-            val before = boardManager.getNowBoardStatus()
-            boardManager.deleteBranch()
-            val after = boardManager.getNowBoardStatus()
-            updateBoard(boardManager.getChangeStatus(before, after))
+            if(boardManager.getNowIndex() != 1) {
+                val confirmDialog = ConfirmDialog(requireContext(), resources.getString(R.string.delete_confirm))
+                confirmDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+                confirmDialog.setOnResponseListener(object : ConfirmDialog.OnResponseListener {
+                    override fun confirm() {
+                        confirmDialog.dismiss()
+                        val before = boardManager.getNowBoardStatus()
+                        boardManager.deleteBranch()
+                        val after = boardManager.getNowBoardStatus()
+                        updateBoard(boardManager.getChangeStatus(before, after))
+                    }
+
+                    override fun refuse() {
+                        confirmDialog.dismiss()
+                    }
+                })
+                confirmDialog.show()
+            }
         }
 
         binding.boardUndoAllBtn.setOnClickListener {
@@ -90,12 +107,12 @@ class BoardFragment : Fragment() {
         }
 
         binding.boardRedoAllBtn.setOnClickListener {
-            val before = boardManager.getNowBoardStatus()
-            if(boardManager.redo()) {
-                var result = boardManager.redo()
-                while(result) { result = boardManager.redo() }
-                val after = boardManager.getNowBoardStatus()
-                updateBoard(boardManager.getChangeStatus(before, after))
+            while(true) {
+                val before = boardManager.getNowBoardStatus()
+                if(boardManager.redo()) {
+                    val after = boardManager.getNowBoardStatus()
+                    updateBoard(boardManager.getChangeStatus(before, after))
+                } else break
             }
         }
 
@@ -232,13 +249,32 @@ class BoardFragment : Fragment() {
             if (item != null) {
                 when (item.itemId) {
                     R.id.action_capture -> {
-                        captureBoard()
+                        val confirmDialog = ConfirmDialog(requireContext(), resources.getString(R.string.capture_confirm))
+                        confirmDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+                        confirmDialog.setOnResponseListener(object : ConfirmDialog.OnResponseListener {
+                            override fun confirm() {
+                                confirmDialog.dismiss()
+                                captureBoard()
+                            }
+                            override fun refuse() { confirmDialog.dismiss() }
+                        })
+                        confirmDialog.show()
                     }
                     R.id.save_board -> {
 
                     }
                     R.id.new_board -> {
-
+                        val confirmDialog = ConfirmDialog(requireContext(), resources.getString(R.string.new_file_confirm))
+                        confirmDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+                        confirmDialog.setOnResponseListener(object : ConfirmDialog.OnResponseListener {
+                            override fun confirm() {
+                                confirmDialog.dismiss()
+                                boardManager.loadNodes(SeqTree())
+                                binding.boardBoard.removeAllStones()
+                            }
+                            override fun refuse() { confirmDialog.dismiss() }
+                        })
+                        confirmDialog.show()
                     }
                     R.id.save_board_as -> {
                         val intent = Intent(Intent.ACTION_CREATE_DOCUMENT)
