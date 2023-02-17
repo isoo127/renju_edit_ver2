@@ -9,6 +9,8 @@ class SeqTreeBoardManager : BoardManager {
     private var nowIndex = 1
     private var sequence = ArrayList<Pair<Int, Int>>()
 
+    fun getSeqTree() = seqTree
+
     override fun getNowBoardStatus(): Array<Array<String>> {
         val array = Array(boardSize) { Array(boardSize) { "" } }
         for(i in 0..14) {

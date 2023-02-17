@@ -1,9 +1,13 @@
 package com.renju_note.isoo.fragment
 
 import android.app.Activity
+import android.content.ContentValues
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.net.Uri
 import android.os.Bundle
+import android.provider.MediaStore
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.TypedValue
@@ -11,8 +15,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.fragment.app.Fragment
 import com.renju_note.isoo.R
 import com.renju_note.isoo.RenjuEditApplication.Companion.boardManager
@@ -21,10 +25,10 @@ import com.renju_note.isoo.SeqTree
 import com.renju_note.isoo.databinding.FragmentBoardBinding
 import com.renju_note.isoo.util.BoardLayout
 import com.renju_note.isoo.util.BoardManager
-import java.io.IOException
-import java.io.InputStream
-import java.io.ObjectInputStream
-import java.lang.NumberFormatException
+import java.io.*
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.util.*
 
 class BoardFragment : Fragment() {
 
@@ -228,7 +232,7 @@ class BoardFragment : Fragment() {
             if (item != null) {
                 when (item.itemId) {
                     R.id.action_capture -> {
-
+                        captureBoard()
                     }
                     R.id.save_board -> {
 
@@ -237,7 +241,11 @@ class BoardFragment : Fragment() {
 
                     }
                     R.id.save_board_as -> {
-
+                        val intent = Intent(Intent.ACTION_CREATE_DOCUMENT)
+                        intent.addCategory(Intent.CATEGORY_OPENABLE)
+                        intent.type = "application/*"
+                        intent.putExtra(Intent.EXTRA_TITLE, "write_your_file_name")
+                        startActivityResultSave.launch(intent)
                     }
                     R.id.load_board -> {
                         val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
@@ -254,6 +262,55 @@ class BoardFragment : Fragment() {
         }
     }
 
+    private fun captureBoard() {
+        val layout = binding.boardContainerCl
+        val width = layout.width
+        val height = layout.height
+
+        val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+        layout.draw(canvas)
+
+        val currentDateTime = LocalDateTime.now()
+        val formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
+        val dateTimeString = currentDateTime.format(formatter)
+
+        // Save the bitmap to the gallery
+        val contentValues = ContentValues().apply {
+            put(MediaStore.Images.Media.DISPLAY_NAME, "renju_edit$dateTimeString")
+            put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
+            put(MediaStore.Images.Media.WIDTH, width)
+            put(MediaStore.Images.Media.HEIGHT, height)
+        }
+        val imageUri = requireActivity().contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
+        imageUri?.let { uri ->
+            requireActivity().contentResolver.openOutputStream(uri)?.use { outputStream ->
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
+            }
+        }
+
+        Toast.makeText(context, "Image saved to gallery", Toast.LENGTH_SHORT).show()
+    }
+
+    private var startActivityResultSave = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val uri: Uri?
+            if (result.data != null) {
+                uri = result.data!!.data
+                try {
+                    val outputStream: OutputStream = requireActivity().contentResolver.openOutputStream(uri!!)!!
+                    val os = ObjectOutputStream(outputStream)
+                    os.writeObject(boardManager.getSeqTree())
+                    os.close()
+                    outputStream.close()
+                    Toast.makeText(context, "Save", Toast.LENGTH_SHORT).show()
+                } catch (e: IOException) {
+                    Toast.makeText(context, "Failed to save!", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+
     private var startActivityResultLoad = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
             val uri: Uri?
@@ -266,14 +323,14 @@ class BoardFragment : Fragment() {
                     boardManager.loadNodes(tree)
                     ois.close()
                     inputStream.close()
-                    Toast.makeText(context, "load", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "Load", Toast.LENGTH_SHORT).show()
 
                     binding.boardBoard.removeAllStones()
                     val before = Array(boardManager.boardSize) { Array(boardManager.boardSize) { "" } }
                     val after = boardManager.getNowBoardStatus()
                     updateBoard(boardManager.getChangeStatus(before, after))
                 } catch (e: IOException) {
-                    Toast.makeText(context, "failed to load!", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "Failed to load!", Toast.LENGTH_SHORT).show()
                     e.printStackTrace()
                 }
             }
