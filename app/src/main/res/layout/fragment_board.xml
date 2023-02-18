@@ -48,7 +48,8 @@
                     android:layout_marginTop="5dp"
                     android:background="@color/default_blue"
                     android:fontFamily="@font/spoqa_regular"
-                    android:gravity="top"/>
+                    android:gravity="top"
+                    android:textCursorDrawable="@drawable/edit_text_cursor"/>
 
                 <com.renju_note.isoo.util.BoardLayout
                     android:id="@+id/board_board"

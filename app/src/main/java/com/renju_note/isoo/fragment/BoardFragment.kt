@@ -27,6 +27,7 @@ import com.renju_note.isoo.SeqTree
 import com.renju_note.isoo.data.Stone
 import com.renju_note.isoo.databinding.FragmentBoardBinding
 import com.renju_note.isoo.dialog.ConfirmDialog
+import com.renju_note.isoo.dialog.PutTextDialog
 import com.renju_note.isoo.util.BoardLayout
 import java.io.*
 import java.time.LocalDateTime
@@ -37,7 +38,7 @@ class BoardFragment : Fragment() {
     private lateinit var binding : FragmentBoardBinding
 
     enum class EditMode {
-        PUT_STONE, ADD_TEXT, START_INDEX_HERE
+        PUT_STONE, ADD_TEXT
     }
     private var mode = EditMode.PUT_STONE
 
@@ -107,7 +108,9 @@ class BoardFragment : Fragment() {
 
         binding.boardRedoAllBtn.setOnClickListener {
             val before = boardManager.getNowBoardStatus()
-            while(true) { if(!boardManager.redo()) break }
+            while (true) {
+                if (!boardManager.redo()) break
+            }
             val after = boardManager.getNowBoardStatus()
             updateBoard(before, after)
         }
@@ -119,19 +122,16 @@ class BoardFragment : Fragment() {
                     EditMode.ADD_TEXT
                 }
                 EditMode.ADD_TEXT -> {
-                    binding.boardModeBtn.setImageResource(R.drawable.board_index_mode)
-                    EditMode.START_INDEX_HERE
-                }
-                EditMode.START_INDEX_HERE -> {
                     binding.boardModeBtn.setImageResource(R.drawable.board_stone_mode)
                     EditMode.PUT_STONE
                 }
             }
-            if(mode == EditMode.START_INDEX_HERE) {
-                boardSetting.startPoint = boardManager.getNowIndex() - 1
-                updateBoard(ArrayList(), boardManager.getNowBoardStatus())
-            }
         }
+    }
+
+    private fun startIndexHere() {
+        boardSetting.startPoint = boardManager.getNowIndex() - 1
+        updateBoard(ArrayList(), boardManager.getNowBoardStatus())
     }
 
     private fun boardClicked() {
@@ -139,10 +139,22 @@ class BoardFragment : Fragment() {
             override fun getCoordinates(x: Int, y: Int) {
                 val before = boardManager.getNowBoardStatus()
                 if(mode == EditMode.ADD_TEXT) {
-                    if(boardManager.addNewChild(x, y, "A")) {
-                        val after = boardManager.getNowBoardStatus()
-                        updateBoard(before, after)
-                    }
+                    val putTextDialog = PutTextDialog(requireContext())
+                    putTextDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+                    putTextDialog.setOnResponseListener(object : PutTextDialog.OnResponseListener {
+                        override fun cancel() {
+                            putTextDialog.dismiss()
+                        }
+
+                        override fun ok(text: String) {
+                            putTextDialog.dismiss()
+                            if(boardManager.addNewChild(x, y, text)) {
+                                val after = boardManager.getNowBoardStatus()
+                                updateBoard(before, after)
+                            }
+                        }
+                    })
+                    putTextDialog.show()
                 } else {
                     if (boardManager.putStone(x, y)) {
                         val after = boardManager.getNowBoardStatus()
@@ -219,7 +231,7 @@ class BoardFragment : Fragment() {
                 }
                 addStone.add(Pair(id, stoneView))
             }
-            if(beforeSequence.size > 0) {
+            if(beforeSequence.size > 0 && changeSequence.size > 0) {
                 val stone = beforeSequence.last()
                 val id = binding.boardBoard.generateStoneID(stone.x, stone.y)
                 var text = (stone.text.toInt() - boardSetting.startPoint).toString()
