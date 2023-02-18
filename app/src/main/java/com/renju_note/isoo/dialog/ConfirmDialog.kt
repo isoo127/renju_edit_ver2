@@ -5,10 +5,9 @@ import android.content.Context
 import android.os.Bundle
 import com.renju_note.isoo.databinding.DialogConfirmBinding
 
-class ConfirmDialog(context: Context, text : String) : Dialog(context) {
+class ConfirmDialog(context: Context, val text : String) : Dialog(context) {
 
     private lateinit var binding : DialogConfirmBinding
-    private val text = text
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

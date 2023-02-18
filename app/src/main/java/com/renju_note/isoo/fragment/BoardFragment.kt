@@ -6,13 +6,13 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.Rect
 import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
@@ -32,6 +32,7 @@ import com.renju_note.isoo.util.BoardLayout
 import java.io.*
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+
 
 class BoardFragment : Fragment() {
 
@@ -166,6 +167,16 @@ class BoardFragment : Fragment() {
     }
 
     private fun editingTextArea() {
+        val activityRootView = requireActivity().window.decorView.rootView
+        val rect1 = Rect()
+        activityRootView.getWindowVisibleDisplayFrame(rect1)
+        val initialHeight = rect1.bottom
+        activityRootView.viewTreeObserver.addOnGlobalLayoutListener {
+            val rect2 = Rect()
+            activityRootView.getWindowVisibleDisplayFrame(rect2)
+            binding.boardTextAreaEt.isCursorVisible = rect2.bottom < initialHeight
+        }
+
         binding.boardTextAreaEt.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {}
