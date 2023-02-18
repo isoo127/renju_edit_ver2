@@ -199,14 +199,16 @@ class BoardFragment : Fragment() {
         if(isAdd) {
             changeSequence.forEach { stone ->
                 val id = binding.boardBoard.generateStoneID(stone.x, stone.y)
+                var text = (stone.text.toInt() - boardSetting.startPoint).toString()
+                if(text.toInt() <= 0) text = ""
                 val stoneView = when (stone.type) {
                     Stone.Type.BLACK -> binding.boardBoard.StoneView(
-                        BoardLayout.StoneViewType.BLACK, stone.text,
+                        BoardLayout.StoneViewType.BLACK, text,
                         binding.boardBoard.getRealX(stone.x), binding.boardBoard.getRealY(stone.y)
                     )
 
                     Stone.Type.WHITE -> binding.boardBoard.StoneView(
-                        BoardLayout.StoneViewType.WHITE, stone.text,
+                        BoardLayout.StoneViewType.WHITE, text,
                         binding.boardBoard.getRealX(stone.x), binding.boardBoard.getRealY(stone.y)
                     )
 
@@ -220,14 +222,16 @@ class BoardFragment : Fragment() {
             if(beforeSequence.size > 0) {
                 val stone = beforeSequence.last()
                 val id = binding.boardBoard.generateStoneID(stone.x, stone.y)
+                var text = (stone.text.toInt() - boardSetting.startPoint).toString()
+                if(text.toInt() <= 0) text = ""
                 val stoneView = when (stone.type) {
                     Stone.Type.BLACK -> binding.boardBoard.StoneView(
-                        BoardLayout.StoneViewType.BLACK, stone.text,
+                        BoardLayout.StoneViewType.BLACK, text,
                         binding.boardBoard.getRealX(stone.x), binding.boardBoard.getRealY(stone.y)
                     )
 
                     Stone.Type.WHITE -> binding.boardBoard.StoneView(
-                        BoardLayout.StoneViewType.WHITE, stone.text,
+                        BoardLayout.StoneViewType.WHITE, text,
                         binding.boardBoard.getRealX(stone.x), binding.boardBoard.getRealY(stone.y)
                     )
 
@@ -247,14 +251,16 @@ class BoardFragment : Fragment() {
         if(afterSequence.size > 0) {
             val stone = afterSequence.last()
             val id = binding.boardBoard.generateStoneID(stone.x, stone.y)
+            var text = (stone.text.toInt() - boardSetting.startPoint).toString()
+            if(text.toInt() <= 0) text = ""
             val stoneView = when (stone.type) {
                 Stone.Type.BLACK -> binding.boardBoard.StoneView(
-                    BoardLayout.StoneViewType.LAST_BLACK, stone.text,
+                    BoardLayout.StoneViewType.LAST_BLACK, text,
                     binding.boardBoard.getRealX(stone.x), binding.boardBoard.getRealY(stone.y)
                 )
 
                 Stone.Type.WHITE -> binding.boardBoard.StoneView(
-                    BoardLayout.StoneViewType.LAST_WHITE, stone.text,
+                    BoardLayout.StoneViewType.LAST_WHITE, text,
                     binding.boardBoard.getRealX(stone.x), binding.boardBoard.getRealY(stone.y)
                 )
 
