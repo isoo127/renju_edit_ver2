@@ -4,6 +4,7 @@ import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.MenuItem
+import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
@@ -30,6 +31,7 @@ class MainActivity : AppCompatActivity() {
         binding.mainPager.adapter = ViewPagerAdapter(supportFragmentManager,lifecycle)
         binding.mainPager.registerOnPageChangeCallback(PageChangeCallback())
         binding.bottomNavigationView.setOnItemSelectedListener { navigationSelected(it) }
+        binding.mainPager.setLayerType(View.LAYER_TYPE_HARDWARE, null)
     }
 
     private fun navigationSelected(item: MenuItem): Boolean {

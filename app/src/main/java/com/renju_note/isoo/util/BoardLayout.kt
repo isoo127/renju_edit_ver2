@@ -8,6 +8,7 @@ import android.graphics.Paint
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
 import android.util.AttributeSet
+import android.util.Log
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.MotionEvent
@@ -23,33 +24,39 @@ class BoardLayout(context: Context, attrs: AttributeSet?) : ConstraintLayout(con
     private var density : Float = 0f
     private val paint = Paint()
     private val coordinateViewID = ArrayList<Int>()
-    private val stones = HashMap<String, Stone>()
+    private val stones = HashMap<String, StoneView>()
 
-    enum class StoneType {
+    enum class StoneViewType {
         BLACK, WHITE, BLANK, LAST_BLACK, LAST_WHITE
     }
 
-    inner class Stone(private var type : StoneType, private var text : String, private val x : Float, private val y : Float) {
+    inner class StoneView(private var type : StoneViewType, private var text : String, private val x : Float, private val y : Float) {
 
         var viewID = -1
         private var stone : TextView = TextView(context)
 
-        fun getStoneType() : StoneType = type
+        fun getStoneType() : StoneViewType = type
 
         fun getText() : String = text
 
-        fun setStoneType(type : StoneType) {
+        init {
+            initStone()
+            setStoneText(text)
+            setStoneType(type)
+        }
+
+        fun setStoneType(type : StoneViewType) {
             this.type = type
             when(type) {
-                StoneType.BLACK -> {
+                StoneViewType.BLACK -> {
                     stone.background = stoneDrawable("#000000", boardSetting.lineColor, (width / 351.3 + 0.5).toInt())
                     stone.setTextColor(Color.WHITE)
                 }
-                StoneType.WHITE -> {
+                StoneViewType.WHITE -> {
                     stone.background = stoneDrawable("#FFFFFF", boardSetting.lineColor, (width / 351.3 + 0.5).toInt())
                     stone.setTextColor(Color.BLACK)
                 }
-                StoneType.BLANK -> {
+                StoneViewType.BLANK -> {
                     if(text.isBlank() || text.isEmpty()) {
                         stone.background = stoneDrawable(boardSetting.nodeColor, "#00000000", (lineInterval / 1.7).toInt())
                     } else {
@@ -61,11 +68,11 @@ class BoardLayout(context: Context, attrs: AttributeSet?) : ConstraintLayout(con
                         stone.setTextColor(Color.parseColor(boardSetting.textColor))
                     }
                 }
-                StoneType.LAST_BLACK -> {
+                StoneViewType.LAST_BLACK -> {
                     stone.background = stoneDrawable("#000000", boardSetting.lastStoneStrokeColor, (width / 351.3 + 0.5).toInt())
                     stone.setTextColor(Color.WHITE)
                 }
-                StoneType.LAST_WHITE -> {
+                StoneViewType.LAST_WHITE -> {
                     stone.background = stoneDrawable("#FFFFFF", boardSetting.lastStoneStrokeColor, (width / 351.3 + 0.5).toInt())
                     stone.setTextColor(Color.BLACK)
                 }
@@ -89,10 +96,6 @@ class BoardLayout(context: Context, attrs: AttributeSet?) : ConstraintLayout(con
         fun addStone(layout : BoardLayout) {
             val size = LayoutParams((lineInterval - 2).toInt(), (lineInterval - 2).toInt())
             val constraintSet = ConstraintSet()
-
-            initStone()
-            setStoneText(text)
-            setStoneType(type)
 
             layout.addView(stone, 0, size)
             constraintSet.clone(layout)
@@ -128,10 +131,8 @@ class BoardLayout(context: Context, attrs: AttributeSet?) : ConstraintLayout(con
         density = context.resources.displayMetrics.density
     }
 
-    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec)
-        lineInterval = MeasureSpec.getSize(widthMeasureSpec).toFloat() / 16
-
+    override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
+        super.onSizeChanged(w, h, oldw, oldh)
         postDelayed({
             if(coordinateViewID.isNotEmpty()) {
                 coordinateViewID.forEach { id -> this.removeViewInLayout(findViewById(id)) }
@@ -143,9 +144,13 @@ class BoardLayout(context: Context, attrs: AttributeSet?) : ConstraintLayout(con
         }, 100)
     }
 
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec)
+        lineInterval = MeasureSpec.getSize(widthMeasureSpec).toFloat() / 16
+    }
+
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
-
         paint.strokeWidth = (width / 351.3 + 0.5).toInt().toFloat()
         paint.color = Color.parseColor("#F2CA94")
         canvas!!.drawRect(0f, 0f, width.toFloat(), height.toFloat(), paint)
@@ -211,7 +216,7 @@ class BoardLayout(context: Context, attrs: AttributeSet?) : ConstraintLayout(con
         constraintSet.applyTo(this)
     }
 
-    fun placeStones(addStones : ArrayList<Pair<String, Stone>>?, deleteStonesID : ArrayList<String>?) {
+    fun placeStones(addStones : ArrayList<Pair<String, StoneView>>?, deleteStonesID : ArrayList<String>?) {
         if (deleteStonesID != null) {
             for (deleteStoneID in deleteStonesID) {
                 val removeStone = stones.remove(deleteStoneID)

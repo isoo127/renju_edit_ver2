@@ -1,24 +1,14 @@
 package com.renju_note.isoo.util
 
+import com.renju_note.isoo.data.Stone
+
 interface BoardManager {
 
-    enum class ElementType {
-        BLACK, WHITE, CHILD
-    }
-
-    fun getNowBoardStatus() : Array<Array<String>>
+    fun getNowBoardStatus() : ArrayList<Stone>
 
     fun setNowTextBoxString(text : String)
 
     fun getNowTextBoxString() : String
-
-    fun getSequence() : ArrayList<Pair<Int, Int>>
-
-    fun getChangeStatus(before : Array<Array<String>>, after : Array<Array<String>>) : Pair<ArrayList<String>, ArrayList<String>>
-
-    fun generateInfoString(type : ElementType, x : Int, y : Int, text : String) : String
-
-    fun infoString2Info(infoString : String) : Pair<Pair<Int, Int>, Pair<ElementType, String>>
 
     fun getNowIndex() : Int
 

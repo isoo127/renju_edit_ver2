@@ -12,26 +12,25 @@ import android.os.Bundle
 import android.provider.MediaStore
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import com.renju_note.isoo.R
 import com.renju_note.isoo.RenjuEditApplication.Companion.boardManager
 import com.renju_note.isoo.RenjuEditApplication.Companion.boardSetting
 import com.renju_note.isoo.SeqTree
+import com.renju_note.isoo.data.Stone
 import com.renju_note.isoo.databinding.FragmentBoardBinding
 import com.renju_note.isoo.dialog.ConfirmDialog
 import com.renju_note.isoo.util.BoardLayout
-import com.renju_note.isoo.util.BoardManager
 import java.io.*
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import java.util.*
 
 class BoardFragment : Fragment() {
 
@@ -71,7 +70,7 @@ class BoardFragment : Fragment() {
                         val before = boardManager.getNowBoardStatus()
                         boardManager.deleteBranch()
                         val after = boardManager.getNowBoardStatus()
-                        updateBoard(boardManager.getChangeStatus(before, after))
+                        updateBoard(before, after)
                     }
 
                     override fun refuse() {
@@ -86,7 +85,7 @@ class BoardFragment : Fragment() {
             val before = boardManager.getNowBoardStatus()
             if(boardManager.undoAll()) {
                 val after = boardManager.getNowBoardStatus()
-                updateBoard(boardManager.getChangeStatus(before, after))
+                updateBoard(before, after)
             }
         }
 
@@ -94,7 +93,7 @@ class BoardFragment : Fragment() {
             val before = boardManager.getNowBoardStatus()
             if(boardManager.undo()) {
                 val after = boardManager.getNowBoardStatus()
-                updateBoard(boardManager.getChangeStatus(before, after))
+                updateBoard(before, after)
             }
         }
 
@@ -102,18 +101,15 @@ class BoardFragment : Fragment() {
             val before = boardManager.getNowBoardStatus()
             if(boardManager.redo()) {
                 val after = boardManager.getNowBoardStatus()
-                updateBoard(boardManager.getChangeStatus(before, after))
+                updateBoard(before, after)
             }
         }
 
         binding.boardRedoAllBtn.setOnClickListener {
-            while(true) {
-                val before = boardManager.getNowBoardStatus()
-                if(boardManager.redo()) {
-                    val after = boardManager.getNowBoardStatus()
-                    updateBoard(boardManager.getChangeStatus(before, after))
-                } else break
-            }
+            val before = boardManager.getNowBoardStatus()
+            while(true) { if(!boardManager.redo()) break }
+            val after = boardManager.getNowBoardStatus()
+            updateBoard(before, after)
         }
 
         binding.boardModeBtn.setOnClickListener {
@@ -133,7 +129,7 @@ class BoardFragment : Fragment() {
             }
             if(mode == EditMode.START_INDEX_HERE) {
                 boardSetting.startPoint = boardManager.getNowIndex() - 1
-                updateBoard(Pair(boardManager.getAllElementStatus(), ArrayList()))
+                updateBoard(ArrayList(), boardManager.getNowBoardStatus())
             }
         }
     }
@@ -145,12 +141,12 @@ class BoardFragment : Fragment() {
                 if(mode == EditMode.ADD_TEXT) {
                     if(boardManager.addNewChild(x, y, "A")) {
                         val after = boardManager.getNowBoardStatus()
-                        updateBoard(boardManager.getChangeStatus(before, after))
+                        updateBoard(before, after)
                     }
                 } else {
                     if (boardManager.putStone(x, y)) {
                         val after = boardManager.getNowBoardStatus()
-                        updateBoard(boardManager.getChangeStatus(before, after))
+                        updateBoard(before, after)
                     }
                 }
             }
@@ -168,77 +164,106 @@ class BoardFragment : Fragment() {
         })
     }
 
-    private fun updateBoard(change : Pair<ArrayList<String>, ArrayList<String>>) {
+    private fun updateBoard(before : ArrayList<Stone>, after : ArrayList<Stone>) {
         binding.boardTextAreaEt.setText(boardManager.getNowTextBoxString())
-
-        val addList = change.first
-        val deleteList = change.second
-
-        val addStone = ArrayList<Pair<String, BoardLayout.Stone>>()
-        val deleteStone = ArrayList<String>()
-
-        fun addStoneByInfo(infoString : String) {
-            val info = boardManager.infoString2Info(infoString)
-            val x = info.first.first
-            val y = info.first.second
-            val id = binding.boardBoard.generateStoneID(x, y)
-            var text = info.second.second
-            var type = BoardLayout.StoneType.WHITE
-            when(info.second.first) {
-                BoardManager.ElementType.BLACK -> {
-                    type = if(text.toInt() + 1 == boardManager.getNowIndex()) {
-                        BoardLayout.StoneType.LAST_BLACK
-                    } else {
-                        BoardLayout.StoneType.BLACK
-                    }
-                    try {
-                        text = (text.toInt() - boardSetting.startPoint).toString()
-                        if(text.toInt() <= 0) text = ""
-                    } catch (e : NumberFormatException) { }
-                }
-                BoardManager.ElementType.WHITE -> {
-                    type = if(text.toInt() + 1 == boardManager.getNowIndex()) {
-                        BoardLayout.StoneType.LAST_WHITE
-                    } else {
-                        BoardLayout.StoneType.WHITE
-                    }
-                    try {
-                        text = (text.toInt() - boardSetting.startPoint).toString()
-                        if(text.toInt() <= 0) text = ""
-                    } catch (e : NumberFormatException) { }
-                }
-                BoardManager.ElementType.CHILD -> {
-                    type = BoardLayout.StoneType.BLANK
-                }
-            }
-            val stone = binding.boardBoard.Stone(type, text, binding.boardBoard.getRealX(x), binding.boardBoard.getRealY(y))
-            addStone.add(Pair(id, stone))
-        }
         binding.boardSequenceTv.text = (boardManager.getNowIndex() - 1).toString()
 
-        addList.forEach { infoString ->
-            addStoneByInfo(infoString)
-        }
+        val addStone = ArrayList<Pair<String, BoardLayout.StoneView>>()
+        val deleteStone = ArrayList<String>()
 
-        // change last stone
-        if(boardManager.getSequence().size >= 1) {
-            if(boardManager.getSequence().size > 1) {
-                val previousLast = boardManager.getSequence()[boardManager.getSequence().size - 2]
-                val previousInfo =
-                    boardManager.getNowBoardStatus()[previousLast.first][previousLast.second]
-                addStoneByInfo(previousInfo)
+        before.forEach { stone ->
+            if(stone.type == Stone.Type.CHILD)
+                deleteStone.add(binding.boardBoard.generateStoneID(stone.x, stone.y))
+        }
+        after.forEach { stone ->
+            if(stone.type == Stone.Type.CHILD) {
+                val id = binding.boardBoard.generateStoneID(stone.x, stone.y)
+                val stoneView = binding.boardBoard.StoneView(BoardLayout.StoneViewType.BLANK, stone.text,
+                    binding.boardBoard.getRealX(stone.x), binding.boardBoard.getRealY(stone.y))
+                addStone.add(Pair(id, stoneView))
             }
-            val nowLast = boardManager.getSequence()[boardManager.getSequence().size - 1]
-            val nowInfo = boardManager.getNowBoardStatus()[nowLast.first][nowLast.second]
-            addStoneByInfo(nowInfo)
         }
 
-        deleteList.forEach { infoString ->
-            val info = boardManager.infoString2Info(infoString)
-            val x = info.first.first
-            val y = info.first.second
-            val id = binding.boardBoard.generateStoneID(x, y)
-            deleteStone.add(id)
+        val beforeSequence = boardManager.getSequence(before)
+        val afterSequence = boardManager.getSequence(after)
+        var isAdd = true
+        val changeSequence = if(beforeSequence.size > afterSequence.size) {
+            isAdd = false
+            beforeSequence.removeAll(afterSequence.toSet())
+            beforeSequence
+        } else {
+            afterSequence.removeAll(beforeSequence.toSet())
+            afterSequence
+        }
+
+        if(isAdd) {
+            changeSequence.forEach { stone ->
+                val id = binding.boardBoard.generateStoneID(stone.x, stone.y)
+                val stoneView = when (stone.type) {
+                    Stone.Type.BLACK -> binding.boardBoard.StoneView(
+                        BoardLayout.StoneViewType.BLACK, stone.text,
+                        binding.boardBoard.getRealX(stone.x), binding.boardBoard.getRealY(stone.y)
+                    )
+
+                    Stone.Type.WHITE -> binding.boardBoard.StoneView(
+                        BoardLayout.StoneViewType.WHITE, stone.text,
+                        binding.boardBoard.getRealX(stone.x), binding.boardBoard.getRealY(stone.y)
+                    )
+
+                    Stone.Type.CHILD -> binding.boardBoard.StoneView(
+                        BoardLayout.StoneViewType.BLANK, stone.text,
+                        binding.boardBoard.getRealX(stone.x), binding.boardBoard.getRealY(stone.y)
+                    )
+                }
+                addStone.add(Pair(id, stoneView))
+            }
+            if(beforeSequence.size > 0) {
+                val stone = beforeSequence.last()
+                val id = binding.boardBoard.generateStoneID(stone.x, stone.y)
+                val stoneView = when (stone.type) {
+                    Stone.Type.BLACK -> binding.boardBoard.StoneView(
+                        BoardLayout.StoneViewType.BLACK, stone.text,
+                        binding.boardBoard.getRealX(stone.x), binding.boardBoard.getRealY(stone.y)
+                    )
+
+                    Stone.Type.WHITE -> binding.boardBoard.StoneView(
+                        BoardLayout.StoneViewType.WHITE, stone.text,
+                        binding.boardBoard.getRealX(stone.x), binding.boardBoard.getRealY(stone.y)
+                    )
+
+                    Stone.Type.CHILD -> binding.boardBoard.StoneView(
+                        BoardLayout.StoneViewType.BLANK, stone.text,
+                        binding.boardBoard.getRealX(stone.x), binding.boardBoard.getRealY(stone.y)
+                    )
+                }
+                addStone.add(Pair(id, stoneView))
+            }
+        } else {
+            changeSequence.forEach { stone ->
+                deleteStone.add(binding.boardBoard.generateStoneID(stone.x, stone.y))
+            }
+        }
+
+        if(afterSequence.size > 0) {
+            val stone = afterSequence.last()
+            val id = binding.boardBoard.generateStoneID(stone.x, stone.y)
+            val stoneView = when (stone.type) {
+                Stone.Type.BLACK -> binding.boardBoard.StoneView(
+                    BoardLayout.StoneViewType.LAST_BLACK, stone.text,
+                    binding.boardBoard.getRealX(stone.x), binding.boardBoard.getRealY(stone.y)
+                )
+
+                Stone.Type.WHITE -> binding.boardBoard.StoneView(
+                    BoardLayout.StoneViewType.LAST_WHITE, stone.text,
+                    binding.boardBoard.getRealX(stone.x), binding.boardBoard.getRealY(stone.y)
+                )
+
+                Stone.Type.CHILD -> binding.boardBoard.StoneView(
+                    BoardLayout.StoneViewType.BLANK, stone.text,
+                    binding.boardBoard.getRealX(stone.x), binding.boardBoard.getRealY(stone.y)
+                )
+            }
+            addStone.add(Pair(id, stoneView))
         }
 
         binding.boardBoard.placeStones(addStone, deleteStone)
@@ -362,9 +387,9 @@ class BoardFragment : Fragment() {
                     Toast.makeText(context, "Load", Toast.LENGTH_SHORT).show()
 
                     binding.boardBoard.removeAllStones()
-                    val before = Array(boardManager.boardSize) { Array(boardManager.boardSize) { "" } }
+                    val before = ArrayList<Stone>()
                     val after = boardManager.getNowBoardStatus()
-                    updateBoard(boardManager.getChangeStatus(before, after))
+                    updateBoard(before, after)
                 } catch (e: IOException) {
                     Toast.makeText(context, "Failed to load!", Toast.LENGTH_SHORT).show()
                     e.printStackTrace()
