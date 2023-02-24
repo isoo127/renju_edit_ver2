@@ -2,15 +2,95 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:background="@color/lightest_gray"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <TextView
+        android:id="@+id/setting_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        android:text="@string/setting"
+        android:textColor="@color/black"
+        android:textSize="20dp"
+        android:fontFamily="@font/spoqa_regular"
+        android:layout_margin="10dp"/>
+
+    <ImageView
+        android:id="@+id/setting_rollback_btn"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        app:layout_constraintTop_toTopOf="@id/setting_title"
+        app:layout_constraintBottom_toBottomOf="@id/setting_title"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:src="@drawable/setting_rollback"
+        android:layout_marginEnd="10dp"/>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toBottomOf="@id/setting_title"
         app:layout_constraintBottom_toBottomOf="parent"
-        android:text="@string/setting"/>
+        android:scrollbars="none"
+        android:layout_marginTop="10dp">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/setting_display_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                android:text="@string/setting_display"
+                android:textColor="@color/default_gray"
+                android:textSize="15dp"
+                android:fontFamily="@font/spoqa_regular"
+                android:layout_margin="5dp"/>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/setting_display_rv"
+                android:background="@color/white"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/setting_display_title"
+                android:layout_marginTop="5dp"
+                tools:listitem="@layout/item_setting_check"
+                android:nestedScrollingEnabled="false"/>
+
+            <TextView
+                android:id="@+id/setting_color_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/setting_display_rv"
+                android:text="@string/setting_color"
+                android:textColor="@color/default_gray"
+                android:textSize="15dp"
+                android:fontFamily="@font/spoqa_regular"
+                android:layout_margin="5dp"/>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/setting_color_rv"
+                android:background="@color/white"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/setting_color_title"
+                android:layout_marginTop="5dp"
+                tools:listitem="@layout/item_setting_color"
+                android:nestedScrollingEnabled="false"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </ScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

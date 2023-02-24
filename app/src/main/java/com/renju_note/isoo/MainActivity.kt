@@ -11,11 +11,13 @@ import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Lifecycle
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
+import com.renju_note.isoo.RenjuEditApplication.Companion.settings
 import com.renju_note.isoo.databinding.ActivityMainBinding
 import com.renju_note.isoo.dialog.ConfirmDialog
 import com.renju_note.isoo.fragment.BoardFragment
 import com.renju_note.isoo.fragment.SettingFragment
 import com.renju_note.isoo.fragment.StorageFragment
+import com.renju_note.isoo.util.BoardLayout
 
 class MainActivity : AppCompatActivity() {
 
@@ -63,7 +65,6 @@ class MainActivity : AppCompatActivity() {
                 else -> error("no such position: $position")
             }
         }
-
     }
 
     private inner class PageChangeCallback: ViewPager2.OnPageChangeCallback() {

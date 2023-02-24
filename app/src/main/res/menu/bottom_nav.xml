@@ -4,19 +4,19 @@
 
     <item
         android:id="@+id/board_fragment_nav"
-        android:icon="@drawable/ic_launcher_background"
+        android:icon="@drawable/bottom_nav_board"
         android:title="@string/board"
         app:showAsAction="withText" />
 
     <item
         android:id="@+id/storage_fragment_nav"
-        android:icon="@drawable/ic_launcher_background"
+        android:icon="@drawable/bottom_nav_storage"
         android:title="@string/storage"
         app:showAsAction="withText"/>
 
     <item
         android:id="@+id/setting_fragment_nav"
-        android:icon="@drawable/ic_launcher_background"
+        android:icon="@drawable/bottom_nav_setting"
         android:title="@string/setting"
         app:showAsAction="withText"/>
 

@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/round_bg"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <com.skydoves.colorpickerview.ColorPickerView
+        android:id="@+id/color_picker_view"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/color_picker_brightness_bar"
+        app:layout_constraintVertical_chainStyle="packed"
+        android:layout_margin="30dp"/>
+
+    <com.skydoves.colorpickerview.sliders.BrightnessSlideBar
+        android:id="@+id/color_picker_brightness_bar"
+        android:layout_width="0dp"
+        android:layout_height="20dp"
+        app:layout_constraintStart_toStartOf="@+id/color_picker_view"
+        app:layout_constraintEnd_toEndOf="@+id/color_picker_view"
+        app:layout_constraintTop_toBottomOf="@id/color_picker_view"
+        app:layout_constraintBottom_toTopOf="@id/color_picker_alpha_bar"
+        android:layout_marginTop="20dp"
+        app:borderSize_AlphaSlideBar="2"/>
+
+    <com.skydoves.colorpickerview.sliders.AlphaSlideBar
+        android:id="@+id/color_picker_alpha_bar"
+        android:layout_width="0dp"
+        android:layout_height="20dp"
+        app:layout_constraintStart_toStartOf="@+id/color_picker_view"
+        app:layout_constraintEnd_toEndOf="@+id/color_picker_view"
+        app:layout_constraintTop_toBottomOf="@id/color_picker_brightness_bar"
+        app:layout_constraintBottom_toBottomOf="@id/color_picker_code_et"
+        android:layout_marginTop="20dp"
+        app:borderSize_AlphaSlideBar="2"/>
+
+    <EditText
+        android:id="@+id/color_picker_code_et"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/color_picker_alpha_bar"
+        app:layout_constraintBottom_toTopOf="@id/color_picker_preview"
+        android:layout_marginTop="20dp"
+        android:textSize="13dp"
+        android:textAlignment="center"
+        android:background="@drawable/edit_text_bg"
+        android:textCursorDrawable="@drawable/edit_text_cursor"
+        android:fontFamily="@font/spoqa_regular"
+        android:lines="1"
+        android:maxLength="9"/>
+
+    <View
+        android:id="@+id/color_picker_preview"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/color_picker_code_et"
+        app:layout_constraintBottom_toTopOf="@id/color_picker_apply_btn"
+        android:layout_marginTop="20dp"/>
+
+    <Button
+        android:id="@+id/color_picker_apply_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/apply"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/color_picker_preview"
+        style="@style/Widget.AppCompat.Button.Borderless"
+        android:textColor="@color/black"
+        android:textSize="15dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="20dp"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -8,6 +8,7 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Rect
 import android.graphics.drawable.ColorDrawable
+import android.graphics.drawable.GradientDrawable
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
@@ -17,15 +18,18 @@ import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.PopupWindow
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import com.renju_note.isoo.R
 import com.renju_note.isoo.RenjuEditApplication.Companion.boardManager
-import com.renju_note.isoo.RenjuEditApplication.Companion.boardSetting
+import com.renju_note.isoo.RenjuEditApplication.Companion.settings
 import com.renju_note.isoo.SeqTree
 import com.renju_note.isoo.data.Stone
 import com.renju_note.isoo.databinding.FragmentBoardBinding
+import com.renju_note.isoo.databinding.PopupMenuBoardBinding
 import com.renju_note.isoo.dialog.ConfirmDialog
 import com.renju_note.isoo.dialog.PutTextDialog
 import com.renju_note.isoo.util.BoardLayout
@@ -58,29 +62,14 @@ class BoardFragment : Fragment() {
         buttonsClicked()
         editingTextArea()
 
+        binding.boardBoard.updateBoardStatus(settings.boardSetting)
+
         return binding.root
     }
 
     private fun buttonsClicked() {
-        binding.boardDelete.setOnClickListener {
-            if(boardManager.getNowIndex() != 1) {
-                val confirmDialog = ConfirmDialog(requireContext(), resources.getString(R.string.delete_confirm))
-                confirmDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-                confirmDialog.setOnResponseListener(object : ConfirmDialog.OnResponseListener {
-                    override fun confirm() {
-                        confirmDialog.dismiss()
-                        val before = boardManager.getNowBoardStatus()
-                        boardManager.deleteBranch()
-                        val after = boardManager.getNowBoardStatus()
-                        updateBoard(before, after)
-                    }
-
-                    override fun refuse() {
-                        confirmDialog.dismiss()
-                    }
-                })
-                confirmDialog.show()
-            }
+        binding.boardMenuBtn.setOnClickListener {
+            popupMenu()
         }
 
         binding.boardUndoAllBtn.setOnClickListener {
@@ -130,9 +119,51 @@ class BoardFragment : Fragment() {
         }
     }
 
+    private fun popupMenu() {
+        val popupBinding = PopupMenuBoardBinding.inflate(layoutInflater)
+        val popupWindow = PopupWindow(
+            popupBinding.root,
+            ViewGroup.LayoutParams.WRAP_CONTENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT,
+            true
+        )
+
+        popupBinding.popupDeleteBtn.setOnClickListener {
+            delete()
+        }
+        popupBinding.popupIndexHereBtn.setOnClickListener {
+            startIndexHere()
+        }
+
+        binding.boardBoard.draw(Canvas())
+
+        popupWindow.showAsDropDown(binding.boardMenuBtn)
+    }
+
     private fun startIndexHere() {
-        boardSetting.startPoint = boardManager.getNowIndex() - 1
+        settings.sequenceSetting.startPoint = boardManager.getNowIndex() - 1
         updateBoard(ArrayList(), boardManager.getNowBoardStatus())
+    }
+
+    private fun delete() {
+        if(boardManager.getNowIndex() != 1) {
+            val confirmDialog = ConfirmDialog(requireContext(), resources.getString(R.string.delete_confirm))
+            confirmDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            confirmDialog.setOnResponseListener(object : ConfirmDialog.OnResponseListener {
+                override fun confirm() {
+                    confirmDialog.dismiss()
+                    val before = boardManager.getNowBoardStatus()
+                    boardManager.deleteBranch()
+                    val after = boardManager.getNowBoardStatus()
+                    updateBoard(before, after)
+                }
+
+                override fun refuse() {
+                    confirmDialog.dismiss()
+                }
+            })
+            confirmDialog.show()
+        }
     }
 
     private fun boardClicked() {
@@ -185,6 +216,38 @@ class BoardFragment : Fragment() {
                 boardManager.setNowTextBoxString(s.toString())
             }
         })
+        updateTextAreaStatus()
+    }
+
+    fun updateTextAreaStatus() {
+        binding.boardTextAreaEt.isVisible = settings.textAreaSetting.isVisible
+        binding.boardTextAreaEt.background = makeTextAreaDrawable(settings.textAreaSetting.backgroundColor, settings.textAreaSetting.strokeColor)
+        binding.boardTextAreaEt.setTextColor(Color.parseColor(blendColors("#FFFFFF", settings.textAreaSetting.textColor)))
+    }
+
+    fun updateBoard() {
+        updateBoard(ArrayList(), boardManager.getNowBoardStatus())
+        binding.boardBoard.updateBoardStatus(settings.boardSetting)
+    }
+
+    private fun makeTextAreaDrawable(backgroundColor : String, strokeColor : String) : GradientDrawable {
+        val drawable1 = GradientDrawable()
+        drawable1.setColor(Color.parseColor(backgroundColor))
+        drawable1.setStroke(3, Color.parseColor(strokeColor))
+        drawable1.shape = GradientDrawable.RECTANGLE
+        return drawable1
+    }
+
+    private fun blendColors(baseColor: String, blendColor: String): String {
+        val base = Color.parseColor(baseColor)
+        val blend = Color.parseColor(blendColor)
+        val alpha = Color.alpha(blend) / 255f
+        val red = (1 - alpha) * Color.red(base) + alpha * Color.red(blend)
+        val green = (1 - alpha) * Color.green(base) + alpha * Color.green(blend)
+        val blue = (1 - alpha) * Color.blue(base) + alpha * Color.blue(blend)
+        val alphaInt = (alpha * 255).toInt()
+        val colorInt = Color.argb(alphaInt, red.toInt(), green.toInt(), blue.toInt())
+        return String.format("#%06X", 0xFFFFFF and colorInt)
     }
 
     private fun updateBoard(before : ArrayList<Stone>, after : ArrayList<Stone>) {
@@ -194,6 +257,7 @@ class BoardFragment : Fragment() {
         val addStone = ArrayList<Pair<String, BoardLayout.StoneView>>()
         val deleteStone = ArrayList<String>()
 
+        // update child nodes view
         before.forEach { stone ->
             if(stone.type == Stone.Type.CHILD)
                 deleteStone.add(binding.boardBoard.generateStoneID(stone.x, stone.y))
@@ -209,7 +273,7 @@ class BoardFragment : Fragment() {
 
         val beforeSequence = boardManager.getSequence(before)
         val afterSequence = boardManager.getSequence(after)
-        var isAdd = true
+        var isAdd = true // after board has more stones than before
         val changeSequence = if(beforeSequence.size > afterSequence.size) {
             isAdd = false
             beforeSequence.removeAll(afterSequence.toSet())
@@ -222,8 +286,9 @@ class BoardFragment : Fragment() {
         if(isAdd) {
             changeSequence.forEach { stone ->
                 val id = binding.boardBoard.generateStoneID(stone.x, stone.y)
-                var text = (stone.text.toInt() - boardSetting.startPoint).toString()
+                var text = (stone.text.toInt() - settings.sequenceSetting.startPoint).toString()
                 if(text.toInt() <= 0) text = ""
+                if(!settings.sequenceSetting.sequenceVisible) text = ""
                 val stoneView = when (stone.type) {
                     Stone.Type.BLACK -> binding.boardBoard.StoneView(
                         BoardLayout.StoneViewType.BLACK, text,
@@ -245,8 +310,9 @@ class BoardFragment : Fragment() {
             if(beforeSequence.size > 0 && changeSequence.size > 0) {
                 val stone = beforeSequence.last()
                 val id = binding.boardBoard.generateStoneID(stone.x, stone.y)
-                var text = (stone.text.toInt() - boardSetting.startPoint).toString()
+                var text = (stone.text.toInt() - settings.sequenceSetting.startPoint).toString()
                 if(text.toInt() <= 0) text = ""
+                if(!settings.sequenceSetting.sequenceVisible) text = ""
                 val stoneView = when (stone.type) {
                     Stone.Type.BLACK -> binding.boardBoard.StoneView(
                         BoardLayout.StoneViewType.BLACK, text,
@@ -271,11 +337,13 @@ class BoardFragment : Fragment() {
             }
         }
 
+        // update last stone position
         if(afterSequence.size > 0) {
             val stone = afterSequence.last()
             val id = binding.boardBoard.generateStoneID(stone.x, stone.y)
-            var text = (stone.text.toInt() - boardSetting.startPoint).toString()
+            var text = (stone.text.toInt() - settings.sequenceSetting.startPoint).toString()
             if(text.toInt() <= 0) text = ""
+            if(!settings.sequenceSetting.sequenceVisible) text = ""
             val stoneView = when (stone.type) {
                 Stone.Type.BLACK -> binding.boardBoard.StoneView(
                     BoardLayout.StoneViewType.LAST_BLACK, text,

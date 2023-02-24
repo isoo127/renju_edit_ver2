@@ -8,14 +8,17 @@ import android.graphics.Paint
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
 import android.util.AttributeSet
+import android.util.Log
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.MotionEvent
 import android.view.View
+import android.widget.EditText
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
-import com.renju_note.isoo.RenjuEditApplication.Companion.boardSetting
+import com.renju_note.isoo.data.BoardSetting
+import com.renju_note.isoo.data.SequenceSetting
 
 class BoardLayout(context: Context, attrs: AttributeSet?) : ConstraintLayout(context, attrs) {
 
@@ -24,6 +27,7 @@ class BoardLayout(context: Context, attrs: AttributeSet?) : ConstraintLayout(con
     private val paint = Paint()
     private val coordinateViewID = ArrayList<Int>()
     private val stones = HashMap<String, StoneView>()
+    private var boardSetting = BoardSetting.getDefaultSetting()
 
     enum class StoneViewType {
         BLACK, WHITE, BLANK, LAST_BLACK, LAST_WHITE
@@ -44,6 +48,12 @@ class BoardLayout(context: Context, attrs: AttributeSet?) : ConstraintLayout(con
             setStoneType(type)
         }
 
+        fun updateStoneView() {
+            stone.setTextSize(TypedValue.COMPLEX_UNIT_DIP, (lineInterval / 2.125 / density).toInt().toFloat())
+            setStoneText(text)
+            setStoneType(type)
+        }
+
         fun setStoneType(type : StoneViewType) {
             this.type = type
             when(type) {
@@ -57,22 +67,22 @@ class BoardLayout(context: Context, attrs: AttributeSet?) : ConstraintLayout(con
                 }
                 StoneViewType.BLANK -> {
                     if(text.isBlank() || text.isEmpty()) {
-                        stone.background = stoneDrawable(boardSetting.nodeColor, "#00000000", (lineInterval / 1.7).toInt())
+                        stone.background = stoneDrawable(blendColors("#FFFFFF", boardSetting.nodeColor), "#00000000", (lineInterval / 1.7).toInt())
                     } else {
                         when (text.length) {
-                            3 -> stone.background = stoneDrawable(boardSetting.boardColor, "#00000000", (lineInterval / 4).toInt())
-                            2 -> stone.background = stoneDrawable(boardSetting.boardColor, "#00000000", (lineInterval / 3).toInt())
-                            else -> stone.background = stoneDrawable(boardSetting.boardColor, "#00000000", (lineInterval / 2).toInt())
+                            3 -> stone.background = stoneDrawable(blendColors("#FFFFFF", boardSetting.boardColor), "#00000000", (lineInterval / 4).toInt())
+                            2 -> stone.background = stoneDrawable(blendColors("#FFFFFF", boardSetting.boardColor), "#00000000", (lineInterval / 3).toInt())
+                            else -> stone.background = stoneDrawable(blendColors("#FFFFFF", boardSetting.boardColor), "#00000000", (lineInterval / 2).toInt())
                         }
-                        stone.setTextColor(Color.parseColor(boardSetting.textColor))
+                        stone.setTextColor(Color.parseColor(blendColors("#FFFFFF", boardSetting.textColor)))
                     }
                 }
                 StoneViewType.LAST_BLACK -> {
-                    stone.background = stoneDrawable("#000000", boardSetting.lastStoneStrokeColor, (width / 351.3 + 0.5).toInt())
+                    stone.background = stoneDrawable("#000000", blendColors("#FFFFFF", boardSetting.lastStoneStrokeColor), (width / 351.3 + 0.5).toInt())
                     stone.setTextColor(Color.WHITE)
                 }
                 StoneViewType.LAST_WHITE -> {
-                    stone.background = stoneDrawable("#FFFFFF", boardSetting.lastStoneStrokeColor, (width / 351.3 + 0.5).toInt())
+                    stone.background = stoneDrawable("#FFFFFF", blendColors("#FFFFFF", boardSetting.lastStoneStrokeColor), (width / 351.3 + 0.5).toInt())
                     stone.setTextColor(Color.BLACK)
                 }
             }
@@ -126,21 +136,13 @@ class BoardLayout(context: Context, attrs: AttributeSet?) : ConstraintLayout(con
     }
 
     init {
-        setBackgroundColor(Color.parseColor(boardSetting.boardColor))
+        setBackgroundColor(Color.TRANSPARENT)
         density = context.resources.displayMetrics.density
     }
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
-        postDelayed({
-            if(coordinateViewID.isNotEmpty()) {
-                coordinateViewID.forEach { id -> this.removeViewInLayout(findViewById(id)) }
-            }
-            for (i in 0..14) {
-                addCoordinate(i, 0)
-                addCoordinate(i, 1)
-            }
-        }, 100)
+        updateBoardStatus(boardSetting)
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
@@ -151,10 +153,10 @@ class BoardLayout(context: Context, attrs: AttributeSet?) : ConstraintLayout(con
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
         paint.strokeWidth = (width / 351.3 + 0.5).toInt().toFloat()
-        paint.color = Color.parseColor("#F2CA94")
+        paint.color = Color.parseColor(boardSetting.boardColor)
         canvas!!.drawRect(0f, 0f, width.toFloat(), height.toFloat(), paint)
 
-        paint.color = Color.parseColor("#666666")
+        paint.color = Color.parseColor(blendColors("#FFFFFF", boardSetting.lineColor))
         val x = lineInterval
         for (i in 1..15) {
             canvas.drawLine(x * i + x / 2, x - x / 2, x * i + x / 2, x * 15 - x / 2, paint)
@@ -249,5 +251,34 @@ class BoardLayout(context: Context, attrs: AttributeSet?) : ConstraintLayout(con
     fun getRealX(x : Int) : Float = (x + 1) * lineInterval + lineInterval / 2
 
     fun getRealY(y : Int) : Float = (y + 1) * lineInterval - lineInterval / 2
+
+    fun updateBoardStatus(boardSetting : BoardSetting) {
+        this.boardSetting = boardSetting
+        postDelayed({
+            if(coordinateViewID.isNotEmpty()) {
+                coordinateViewID.forEach { id -> this.removeViewInLayout(findViewById(id)) }
+            }
+            for (i in 0..14) {
+                addCoordinate(i, 0)
+                addCoordinate(i, 1)
+            }
+        }, 100)
+        stones.keys.forEach { key ->
+            stones[key]!!.updateStoneView()
+        }
+        this.invalidate()
+    }
+
+    private fun blendColors(baseColor: String, blendColor: String): String {
+        val base = Color.parseColor(baseColor)
+        val blend = Color.parseColor(blendColor)
+        val alpha = Color.alpha(blend) / 255f
+        val red = (1 - alpha) * Color.red(base) + alpha * Color.red(blend)
+        val green = (1 - alpha) * Color.green(base) + alpha * Color.green(blend)
+        val blue = (1 - alpha) * Color.blue(base) + alpha * Color.blue(blend)
+        val alphaInt = (alpha * 255).toInt()
+        val colorInt = Color.argb(alphaInt, red.toInt(), green.toInt(), blue.toInt())
+        return String.format("#%06X", 0xFFFFFF and colorInt)
+    }
 
 }

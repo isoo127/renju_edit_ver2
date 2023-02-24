@@ -75,18 +75,18 @@
                 app:layout_constraintTop_toBottomOf="@id/board_container_cl">
 
                 <ImageButton
-                    android:id="@+id/board_delete"
+                    android:id="@+id/board_menu_btn"
                     style="@android:style/Widget.Material.Button.Borderless"
-                    android:layout_width="0dp"
+                    android:layout_width="48dp"
                     android:layout_height="50dp"
                     android:layout_gravity="center|center_vertical"
                     android:layout_marginStart="2dp"
                     android:layout_marginEnd="2dp"
                     android:layout_marginBottom="2dp"
-                    android:layout_weight="0.8"
+                    android:layout_weight="0"
                     android:padding="13dp"
                     android:scaleType="fitCenter"
-                    android:src="@drawable/board_delete"/>
+                    android:src="@drawable/buttons_menu"/>
 
                 <Button
                     android:id="@+id/board_undo_all_btn"
@@ -184,31 +184,18 @@
                 <ImageButton
                     android:id="@+id/board_mode_btn"
                     style="@android:style/Widget.Material.Button.Borderless"
-                    android:layout_width="0dp"
+                    android:layout_width="48dp"
                     android:layout_height="50dp"
                     android:layout_gravity="center|center_vertical"
                     android:layout_marginStart="2dp"
                     android:layout_marginEnd="2dp"
                     android:layout_marginBottom="2dp"
-                    android:layout_weight="0.8"
+                    android:layout_weight="0"
                     android:padding="14dp"
                     android:scaleType="fitCenter"
                     android:src="@drawable/board_stone_mode" />
 
             </LinearLayout>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/board_button_container_ll"
-                android:layout_marginTop="20dp"
-                android:textSize="12dp"
-                android:textColor="@color/default_gray"
-                android:gravity="center"
-                android:text="File name : 한성g7 (modified)\n2023-02-16 21:52"
-                tools:ignore="SpUsage" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
