@@ -25,6 +25,7 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import com.renju_note.isoo.R
 import com.renju_note.isoo.RenjuEditApplication.Companion.boardManager
+import com.renju_note.isoo.RenjuEditApplication.Companion.pref
 import com.renju_note.isoo.RenjuEditApplication.Companion.settings
 import com.renju_note.isoo.SeqTree
 import com.renju_note.isoo.data.Stone
@@ -141,8 +142,21 @@ class BoardFragment : Fragment() {
     }
 
     private fun startIndexHere() {
-        settings.sequenceSetting.startPoint = boardManager.getNowIndex() - 1
-        updateBoard(ArrayList(), boardManager.getNowBoardStatus())
+        val confirmDialog = ConfirmDialog(requireContext(), resources.getString(R.string.start_index_confirm))
+        confirmDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        confirmDialog.setOnResponseListener(object : ConfirmDialog.OnResponseListener {
+            override fun confirm() {
+                confirmDialog.dismiss()
+                settings.sequenceSetting.startPoint = boardManager.getNowIndex() - 1
+                updateBoard(ArrayList(), boardManager.getNowBoardStatus())
+                settings.save(pref)
+            }
+
+            override fun refuse() {
+                confirmDialog.dismiss()
+            }
+        })
+        confirmDialog.show()
     }
 
     private fun delete() {

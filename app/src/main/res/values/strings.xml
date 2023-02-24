@@ -24,6 +24,7 @@
     <string name="capture_confirm">Are you sure you want to capture this board?</string>
     <string name="new_file_confirm">Are you sure you want to load a new board?</string>
     <string name="delete_confirm">Are you sure you want to delete this move?</string>
+    <string name="start_index_confirm">Are you sure you want to set start index here?</string>
 
     <string name="cancel">Cancel</string>
     <string name="ok">OK</string>

@@ -28,7 +28,7 @@ class RenjuEditApplication : Application() {
 
         fun setDefaultSetting() {
             boardSetting = BoardSetting.getDefaultSetting()
-            sequenceSetting = SequenceSetting.getDefaultSetting()
+            sequenceSetting.sequenceVisible = true
             textAreaSetting = TextAreaSetting.getDefaultSetting()
         }
     }

@@ -4,25 +4,24 @@ import com.renju_note.isoo.util.PreferenceUtil
 
 data class SequenceSetting (
     var sequenceVisible : Boolean,
-    var startPoint : Int
 ) {
+
+    var startPoint = 0
 
     companion object {
         fun getDefaultSetting() : SequenceSetting {
             val sequenceVisible = true
-            val startPoint = 0
-            return SequenceSetting(sequenceVisible, startPoint)
+            return SequenceSetting(sequenceVisible)
         }
     }
 
     fun save(pref : PreferenceUtil) {
         pref.setString("sequenceVisible", sequenceVisible.toString())
-        pref.setString("startPoint", startPoint.toString())
     }
 
     fun load(pref : PreferenceUtil) {
         sequenceVisible = pref.getString("sequenceVisible", "true").toBoolean()
-        startPoint = pref.getString("startPoint", "0").toInt()
+        startPoint = 0
     }
 
 }
