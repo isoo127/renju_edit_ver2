@@ -25,7 +25,7 @@ data class BoardSetting (
         pref.setString("boardColor", boardColor)
         pref.setString("lineColor", lineColor)
         pref.setString("lastStoneStrokeColor", lastStoneStrokeColor)
-        pref.setString("textColor", textColor)
+        pref.setString("BoardTextColor", textColor)
         pref.setString("nodeColor", nodeColor)
     }
 
@@ -33,7 +33,7 @@ data class BoardSetting (
         boardColor = pref.getString("boardColor", "#F2CA94")
         lineColor = pref.getString("lineColor", "#666666")
         lastStoneStrokeColor = pref.getString("lastStoneStrokeColor", "#D32560")
-        textColor = pref.getString("textColor", "#0000FF")
+        textColor = pref.getString("BoardTextColor", "#0000FF")
         nodeColor = pref.getString("nodeColor", "#0000FF")
     }
 

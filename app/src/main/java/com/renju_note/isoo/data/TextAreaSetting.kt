@@ -23,14 +23,14 @@ data class TextAreaSetting (
         pref.setString("isVisible", isVisible.toString())
         pref.setString("backgroundColor", backgroundColor)
         pref.setString("strokeColor", strokeColor)
-        pref.setString("textColor", textColor)
+        pref.setString("TextAreaTextColor", textColor)
     }
 
     fun load(pref : PreferenceUtil) {
         isVisible = pref.getString("isVisible", "true").toBoolean()
         backgroundColor = pref.getString("backgroundColor", "#99BBFF")
         strokeColor = pref.getString("strokeColor", "#99BBFF")
-        textColor = pref.getString("textColor", "#000000")
+        textColor = pref.getString("TextAreaTextColor", "#000000")
     }
 
 }
