@@ -63,7 +63,7 @@ class BoardFragment : Fragment() {
         buttonsClicked()
         editingTextArea()
 
-        binding.boardBoard.updateBoardStatus(settings.boardSetting)
+        binding.boardBoard.updateBoardStatus(settings.boardSetting, settings.sequenceSetting)
 
         return binding.root
     }
@@ -148,7 +148,7 @@ class BoardFragment : Fragment() {
             override fun confirm() {
                 confirmDialog.dismiss()
                 settings.sequenceSetting.startPoint = boardManager.getNowIndex() - 1
-                updateBoard(ArrayList(), boardManager.getNowBoardStatus())
+                binding.boardBoard.updateBoardStatus(settings.boardSetting, settings.sequenceSetting)
                 settings.save(pref)
             }
 
@@ -240,8 +240,7 @@ class BoardFragment : Fragment() {
     }
 
     fun updateBoard() {
-        updateBoard(ArrayList(), boardManager.getNowBoardStatus())
-        binding.boardBoard.updateBoardStatus(settings.boardSetting)
+        binding.boardBoard.updateBoardStatus(settings.boardSetting, settings.sequenceSetting)
     }
 
     private fun makeTextAreaDrawable(backgroundColor : String, strokeColor : String) : GradientDrawable {
@@ -268,20 +267,15 @@ class BoardFragment : Fragment() {
         binding.boardTextAreaEt.setText(boardManager.getNowTextBoxString())
         binding.boardSequenceTv.text = (boardManager.getNowIndex() - 1).toString()
 
-        val addStone = ArrayList<Pair<String, BoardLayout.StoneView>>()
+        val addStone = ArrayList<BoardLayout.StoneView>()
         val deleteStone = ArrayList<String>()
+        val childs = ArrayList<BoardLayout.Child>()
 
         // update child nodes view
-        before.forEach { stone ->
-            if(stone.type == Stone.Type.CHILD)
-                deleteStone.add(binding.boardBoard.generateStoneID(stone.x, stone.y))
-        }
         after.forEach { stone ->
             if(stone.type == Stone.Type.CHILD) {
-                val id = binding.boardBoard.generateStoneID(stone.x, stone.y)
-                val stoneView = binding.boardBoard.StoneView(BoardLayout.StoneViewType.BLANK, stone.text,
-                    binding.boardBoard.getRealX(stone.x), binding.boardBoard.getRealY(stone.y))
-                addStone.add(Pair(id, stoneView))
+                val child = binding.boardBoard.Child(stone.text, stone.x, stone.y)
+                childs.add(child)
             }
         }
 
@@ -299,85 +293,28 @@ class BoardFragment : Fragment() {
 
         if(isAdd) {
             changeSequence.forEach { stone ->
-                val id = binding.boardBoard.generateStoneID(stone.x, stone.y)
-                var text = (stone.text.toInt() - settings.sequenceSetting.startPoint).toString()
-                if(text.toInt() <= 0) text = ""
-                if(!settings.sequenceSetting.sequenceVisible) text = ""
                 val stoneView = when (stone.type) {
                     Stone.Type.BLACK -> binding.boardBoard.StoneView(
-                        BoardLayout.StoneViewType.BLACK, text,
-                        binding.boardBoard.getRealX(stone.x), binding.boardBoard.getRealY(stone.y)
-                    )
+                        BoardLayout.StoneViewType.BLACK, stone.text.toInt(),
+                        stone.x, stone.y)
 
                     Stone.Type.WHITE -> binding.boardBoard.StoneView(
-                        BoardLayout.StoneViewType.WHITE, text,
-                        binding.boardBoard.getRealX(stone.x), binding.boardBoard.getRealY(stone.y)
-                    )
+                        BoardLayout.StoneViewType.WHITE, stone.text.toInt(),
+                        stone.x, stone.y)
 
                     Stone.Type.CHILD -> binding.boardBoard.StoneView(
-                        BoardLayout.StoneViewType.BLANK, stone.text,
-                        binding.boardBoard.getRealX(stone.x), binding.boardBoard.getRealY(stone.y)
-                    )
+                        BoardLayout.StoneViewType.BLACK, -1,
+                        stone.x, stone.y)
                 }
-                addStone.add(Pair(id, stoneView))
-            }
-            if(beforeSequence.size > 0 && changeSequence.size > 0) {
-                val stone = beforeSequence.last()
-                val id = binding.boardBoard.generateStoneID(stone.x, stone.y)
-                var text = (stone.text.toInt() - settings.sequenceSetting.startPoint).toString()
-                if(text.toInt() <= 0) text = ""
-                if(!settings.sequenceSetting.sequenceVisible) text = ""
-                val stoneView = when (stone.type) {
-                    Stone.Type.BLACK -> binding.boardBoard.StoneView(
-                        BoardLayout.StoneViewType.BLACK, text,
-                        binding.boardBoard.getRealX(stone.x), binding.boardBoard.getRealY(stone.y)
-                    )
-
-                    Stone.Type.WHITE -> binding.boardBoard.StoneView(
-                        BoardLayout.StoneViewType.WHITE, text,
-                        binding.boardBoard.getRealX(stone.x), binding.boardBoard.getRealY(stone.y)
-                    )
-
-                    Stone.Type.CHILD -> binding.boardBoard.StoneView(
-                        BoardLayout.StoneViewType.BLANK, stone.text,
-                        binding.boardBoard.getRealX(stone.x), binding.boardBoard.getRealY(stone.y)
-                    )
-                }
-                addStone.add(Pair(id, stoneView))
+                addStone.add(stoneView)
             }
         } else {
             changeSequence.forEach { stone ->
-                deleteStone.add(binding.boardBoard.generateStoneID(stone.x, stone.y))
+                deleteStone.add(binding.boardBoard.getStoneID(stone.x, stone.y))
             }
         }
 
-        // update last stone position
-        if(afterSequence.size > 0) {
-            val stone = afterSequence.last()
-            val id = binding.boardBoard.generateStoneID(stone.x, stone.y)
-            var text = (stone.text.toInt() - settings.sequenceSetting.startPoint).toString()
-            if(text.toInt() <= 0) text = ""
-            if(!settings.sequenceSetting.sequenceVisible) text = ""
-            val stoneView = when (stone.type) {
-                Stone.Type.BLACK -> binding.boardBoard.StoneView(
-                    BoardLayout.StoneViewType.LAST_BLACK, text,
-                    binding.boardBoard.getRealX(stone.x), binding.boardBoard.getRealY(stone.y)
-                )
-
-                Stone.Type.WHITE -> binding.boardBoard.StoneView(
-                    BoardLayout.StoneViewType.LAST_WHITE, text,
-                    binding.boardBoard.getRealX(stone.x), binding.boardBoard.getRealY(stone.y)
-                )
-
-                Stone.Type.CHILD -> binding.boardBoard.StoneView(
-                    BoardLayout.StoneViewType.BLANK, stone.text,
-                    binding.boardBoard.getRealX(stone.x), binding.boardBoard.getRealY(stone.y)
-                )
-            }
-            addStone.add(Pair(id, stoneView))
-        }
-
-        binding.boardBoard.placeStones(addStone, deleteStone)
+        binding.boardBoard.placeStones(addStone, deleteStone, childs)
     }
 
     private fun toolbarItemSelected() {
