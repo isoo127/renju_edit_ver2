@@ -25,96 +25,10 @@ class BoardLayout(context: Context, attrs: AttributeSet?) : ConstraintLayout(con
     private val stones = HashMap<String, StoneView>()
     private var boardSetting = BoardSetting.getDefaultSetting()
 
-    enum class StoneViewType {
-        BLACK, WHITE, BLANK, LAST_BLACK, LAST_WHITE
-    }
+    class StoneView(private var type : StoneViewType, private var index : Int, private val x : Int, private val y : Int) {
 
-    inner class StoneView(private var type : StoneViewType, private var text : String, private val x : Float, private val y : Float) {
-
-        var viewID = -1
-        private var stone : TextView = TextView(context)
-
-        fun getStoneType() : StoneViewType = type
-
-        fun getText() : String = text
-
-        init {
-            initStone()
-            setStoneText(text)
-            setStoneType(type)
-        }
-
-        fun updateStoneView() {
-            stone.setTextSize(TypedValue.COMPLEX_UNIT_DIP, (lineInterval / 2.125 / density).toInt().toFloat())
-            setStoneText(text)
-            setStoneType(type)
-        }
-
-        fun setStoneType(type : StoneViewType) {
-            this.type = type
-            when(type) {
-                StoneViewType.BLACK -> {
-                    stone.background = stoneDrawable("#000000", boardSetting.lineColor, (width / 351.3 + 0.5).toInt())
-                    stone.setTextColor(Color.WHITE)
-                }
-                StoneViewType.WHITE -> {
-                    stone.background = stoneDrawable("#FFFFFF", boardSetting.lineColor, (width / 351.3 + 0.5).toInt())
-                    stone.setTextColor(Color.BLACK)
-                }
-                StoneViewType.BLANK -> {
-                    if(text.isBlank() || text.isEmpty()) {
-                        stone.background = stoneDrawable(blendColors("#FFFFFF", boardSetting.nodeColor), "#00000000", (lineInterval / 1.7).toInt())
-                    } else {
-                        when (text.length) {
-                            3 -> stone.background = stoneDrawable(blendColors("#FFFFFF", boardSetting.boardColor), "#00000000", (lineInterval / 4).toInt())
-                            2 -> stone.background = stoneDrawable(blendColors("#FFFFFF", boardSetting.boardColor), "#00000000", (lineInterval / 3).toInt())
-                            else -> stone.background = stoneDrawable(blendColors("#FFFFFF", boardSetting.boardColor), "#00000000", (lineInterval / 2).toInt())
-                        }
-                        stone.setTextColor(Color.parseColor(blendColors("#FFFFFF", boardSetting.textColor)))
-                    }
-                }
-                StoneViewType.LAST_BLACK -> {
-                    stone.background = stoneDrawable("#000000", blendColors("#FFFFFF", boardSetting.lastStoneStrokeColor), (width / 351.3 + 0.5).toInt())
-                    stone.setTextColor(Color.WHITE)
-                }
-                StoneViewType.LAST_WHITE -> {
-                    stone.background = stoneDrawable("#FFFFFF", blendColors("#FFFFFF", boardSetting.lastStoneStrokeColor), (width / 351.3 + 0.5).toInt())
-                    stone.setTextColor(Color.BLACK)
-                }
-            }
-        }
-
-        fun setStoneText(text : String) {
-            this.text = text
-            stone.text = text
-        }
-
-        private fun initStone() {
-            stone.setLines(1)
-            stone.setTypeface(Typeface.MONOSPACE, Typeface.BOLD)
-            stone.setTextSize(TypedValue.COMPLEX_UNIT_DIP, (lineInterval / 2.125 / density).toInt().toFloat())
-            stone.gravity = Gravity.CENTER
-            stone.id = View.generateViewId()
-            viewID = stone.id
-        }
-
-        fun addStone(layout : BoardLayout) {
-            val size = LayoutParams((lineInterval - 2).toInt(), (lineInterval - 2).toInt())
-            val constraintSet = ConstraintSet()
-
-            layout.addView(stone, 0, size)
-            constraintSet.clone(layout)
-            constraintSet.connect(stone.id, ConstraintSet.TOP, layout.id, ConstraintSet.TOP, y.toInt() - (lineInterval / 2 - 1).toInt())
-            constraintSet.connect(stone.id, ConstraintSet.LEFT, layout.id, ConstraintSet.LEFT, x.toInt() - (lineInterval / 2 - 1).toInt())
-            constraintSet.applyTo(layout)
-        }
-
-        private fun stoneDrawable(stoneColor: String, strokeColor: String, strokeSize : Int): GradientDrawable {
-            val drawable = GradientDrawable()
-            drawable.setStroke(strokeSize, Color.parseColor(strokeColor))
-            drawable.setColor(Color.parseColor(stoneColor))
-            drawable.shape = GradientDrawable.OVAL
-            return drawable
+        enum class StoneViewType {
+            BLACK, WHITE, LAST_BLACK, LAST_WHITE
         }
 
     }
