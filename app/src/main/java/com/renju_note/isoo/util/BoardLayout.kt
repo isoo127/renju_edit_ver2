@@ -3,17 +3,11 @@ package com.renju_note.isoo.util
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.*
-import android.graphics.drawable.GradientDrawable
 import android.util.AttributeSet
-import android.util.Log
-import android.util.TypedValue
-import android.view.Gravity
 import android.view.MotionEvent
-import android.view.View
-import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.constraintlayout.widget.ConstraintSet
 import com.renju_note.isoo.data.BoardSetting
+import com.renju_note.isoo.data.SequenceSetting
 
 class BoardLayout(context: Context, attrs: AttributeSet?) : ConstraintLayout(context, attrs) {
 
@@ -22,56 +16,148 @@ class BoardLayout(context: Context, attrs: AttributeSet?) : ConstraintLayout(con
     private val paint = Paint()
     private val bounds = Rect()
 
-    private val stones = HashMap<String, StoneView>()
     private var boardSetting = BoardSetting.getDefaultSetting()
+    private var sequenceSetting = SequenceSetting.getDefaultSetting()
+
+    private val stones = HashMap<String, StoneView>()
+    private val childs = ArrayList<Child>()
+    private val drawingElements = ArrayList<Element>() // Line, Area
+    private val points = ArrayList<Point>()
 
     interface Element {
         fun draw(canvas : Canvas?)
     }
 
-    inner class Line(private val startX : Float, private val startY : Float, private val endX : Float, private val endY : Float) {
-        fun draw(canvas : Canvas?) {
+    inner class Line(private val startX : Int, private val startY : Int, private val endX : Int, private val endY : Int) : Element {
+        override fun draw(canvas : Canvas?) {
             paint.apply {
                 color = Color.RED
                 style = Paint.Style.STROKE
-                strokeWidth = 7f
+                strokeWidth = lineInterval / 9.4107f
                 pathEffect = DashPathEffect(floatArrayOf(10f, 5f), 0f)
             }
-            canvas?.drawLine(startX, startY, endX, endY, paint)
+            canvas?.drawLine(getRealX(startX), getRealY(startY), getRealX(endX), getRealY(endY), paint)
         }
     }
 
-    inner class Square(private var left : Float, private var top : Float, private var right : Float, private var bottom : Float) {
-        fun draw(canvas : Canvas?) {
+    inner class Area(private var left : Int, private var top : Int, private var right : Int, private var bottom : Int) : Element {
+        override fun draw(canvas : Canvas?) {
             paint.apply {
                 color = Color.parseColor("#2B000000")
                 style = Paint.Style.FILL
             }
-            val tmp = lineInterval / 2
-            val rect = RectF(left - tmp, top - tmp, right + tmp, bottom + tmp)
+            if(left > right) {
+                val tmp = left
+                left = right
+                right = tmp
+            }
+            if(top > bottom) {
+                val tmp = top
+                top = bottom
+                bottom = tmp
+            }
+            val margin = lineInterval / 2
+            val rect = RectF(left - margin, top - margin, right + margin, bottom + margin)
             val path = Path()
-            path.addRoundRect(rect, 40f, 40f, Path.Direction.CW)
+            path.addRoundRect(rect, lineInterval / 1.6468f, lineInterval / 1.6468f, Path.Direction.CW)
             canvas?.drawPath(path, paint)
         }
     }
 
-    inner class Point(private val x : Float, private val y : Float) {
-        fun draw(canvas : Canvas?) {
+    inner class Point(private val x : Int, private val y : Int) : Element {
+        override fun draw(canvas : Canvas?) {
             paint.apply {
                 color = Color.RED
             }
-            canvas?.drawCircle(x, y, 10f, paint)
+            canvas?.drawCircle(getRealX(x), getRealY(y), lineInterval / 6.5875f, paint)
         }
     }
 
     enum class StoneViewType { BLACK, WHITE }
 
     inner class StoneView(private var type : StoneViewType, private var index : Int, private val x : Int, private val y : Int) : Element {
+        val id = "$x/$y"
 
-        override fun draw(canvas: Canvas?) {
-            TODO("Not yet implemented")
+        fun setStoneType(type : StoneViewType) {
+            this.type = type
         }
 
+        fun getStoneType() : StoneViewType = type
+
+        fun setStoneIndex(idx : Int) {
+            index = idx
+        }
+
+        fun getStoneIndex() : Int = index
+
+        override fun draw(canvas: Canvas?) {
+            val radius = lineInterval / 2 - 2
+            paint.apply {
+                strokeWidth = (width / 351.3 + 0.5).toInt().toFloat()
+                color = if(index == stones.size)
+                    Color.parseColor(blendColors("#FFFFFF", boardSetting.lastStoneStrokeColor))
+                else
+                    Color.parseColor(blendColors("#FFFFFF", boardSetting.lineColor))
+                style = Paint.Style.STROKE
+            }
+            canvas?.drawCircle(getRealX(x), getRealY(y), radius, paint)
+
+            paint.style = Paint.Style.FILL
+            if(type == StoneViewType.BLACK)
+                paint.color = Color.BLACK
+            else
+                paint.color = Color.WHITE
+            canvas?.drawCircle(getRealX(x), getRealY(y), radius - paint.strokeWidth / 2, paint)
+
+            if(sequenceSetting.sequenceVisible && index - sequenceSetting.startPoint > 0) {
+                paint.apply {
+                    color = if (type == StoneViewType.BLACK)
+                        Color.WHITE
+                    else
+                        Color.BLACK
+                    textSize = lineInterval / 2.2f
+                    typeface = Typeface.create(Typeface.MONOSPACE, Typeface.BOLD)
+                }
+                val idxText = (index - sequenceSetting.startPoint).toString()
+                paint.getTextBounds("333", 0, idxText.length, bounds)
+                val centerX = bounds.exactCenterX()
+                val centerY = bounds.exactCenterY()
+                canvas?.drawText(idxText, getRealX(x) - centerX, getRealY(y) - centerY, paint)
+            }
+        }
+    }
+
+    inner class Child(private var text : String, private val x : Int, private val y : Int) : Element {
+        override fun draw(canvas: Canvas?) {
+            if (text.isNotEmpty()) {
+                paint.color = Color.parseColor(blendColors("#FFFFFF", boardSetting.boardColor))
+                paint.getTextBounds(text, 0, text.length, bounds)
+                if(bounds.width() > lineInterval) {
+                    text = text.substring(0, text.length - 1)
+                    paint.getTextBounds(text, 0, text.length, bounds)
+                }
+                val centerX = bounds.exactCenterX()
+                val centerY = bounds.exactCenterY()
+                canvas?.drawRect(
+                    getRealX(x) - centerX,
+                    getRealY(y) - centerY + lineInterval / 13.2f,
+                    getRealX(x) + centerX,
+                    getRealY(y) + centerY - lineInterval / 13.2f, paint
+                )
+                paint.color = Color.parseColor(blendColors("#FFFFFF", boardSetting.textColor))
+                paint.textSize = lineInterval / 2.2f
+                paint.typeface = Typeface.create(Typeface.MONOSPACE, Typeface.BOLD)
+                canvas?.drawText(
+                    text,
+                    getRealX(x) - centerX,
+                    getRealY(y) - centerY,
+                    paint
+                )
+            } else {
+                paint.color = Color.parseColor(blendColors("#FFFFFF", boardSetting.nodeColor))
+                canvas?.drawCircle(getRealX(x), getRealY(y), lineInterval / 34 * 6, paint)
+            }
+        }
     }
 
     open class OnBoardTouchListener {
@@ -93,7 +179,7 @@ class BoardLayout(context: Context, attrs: AttributeSet?) : ConstraintLayout(con
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
-        updateBoardStatus(boardSetting)
+        updateBoardStatus(boardSetting, sequenceSetting)
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
@@ -104,6 +190,12 @@ class BoardLayout(context: Context, attrs: AttributeSet?) : ConstraintLayout(con
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
         paint.isAntiAlias = true
+        drawBoard(canvas)
+        childs.forEach { child -> child.draw(canvas) }
+        stones.keys.forEach { key -> stones[key]?.draw(canvas) }
+    }
+
+    private fun drawBoard(canvas : Canvas?) {
         // board background
         paint.color = Color.parseColor(boardSetting.boardColor)
         canvas!!.drawRect(0f, 0f, width.toFloat(), height.toFloat(), paint)
@@ -164,47 +256,45 @@ class BoardLayout(context: Context, attrs: AttributeSet?) : ConstraintLayout(con
         return true
     }
 
-    fun placeStones(addStones : ArrayList<Pair<String, StoneView>>?, deleteStonesID : ArrayList<String>?) {
+    fun placeStones(addStones : ArrayList<StoneView>?, deleteStonesID : ArrayList<String>?, childs : ArrayList<Child>) {
         if (deleteStonesID != null) {
             for (deleteStoneID in deleteStonesID) {
-                val removeStone = stones.remove(deleteStoneID)
-                if(removeStone != null)
-                    removeViewInLayout(findViewById(removeStone.viewID))
+                stones.remove(deleteStoneID)
             }
         }
 
         if (addStones != null) {
             for(addStone in addStones) {
-                if(stones.contains(addStone.first)) {
-                    stones[addStone.first]!!.setStoneText(addStone.second.getText())
-                    stones[addStone.first]!!.setStoneType(addStone.second.getStoneType())
+                if(stones.contains(addStone.id)) {
+                    stones[addStone.id]!!.setStoneIndex(addStone.getStoneIndex())
+                    stones[addStone.id]!!.setStoneType(addStone.getStoneType())
                 } else {
-                    stones[addStone.first] = addStone.second
-                    addStone.second.addStone(this)
+                    stones[addStone.id] = addStone
                 }
             }
         }
+
+        this.childs.clear()
+        this.childs.addAll(childs)
+        invalidate()
     }
 
     fun removeAllStones() {
-        stones.keys.forEach { key ->
-            removeViewInLayout(findViewById(stones[key]!!.viewID))
-        }
         stones.clear()
+        childs.clear()
+        invalidate()
     }
 
-    fun generateStoneID(x : Int, y : Int) : String = "$x/$y"
+    fun getStoneID(x : Int, y : Int) : String = "$x/$y"
 
-    fun getRealX(x : Int) : Float = (x + 1) * lineInterval + lineInterval / 2
+    private fun getRealX(x : Int) : Float = (x + 1) * lineInterval + lineInterval / 2
 
-    fun getRealY(y : Int) : Float = (y + 1) * lineInterval - lineInterval / 2
+    private fun getRealY(y : Int) : Float = (y + 1) * lineInterval - lineInterval / 2
 
-    fun updateBoardStatus(boardSetting : BoardSetting) {
+    fun updateBoardStatus(boardSetting : BoardSetting, sequenceSetting : SequenceSetting) {
         this.boardSetting = boardSetting
-        stones.keys.forEach { key ->
-            stones[key]!!.updateStoneView()
-        }
-        this.invalidate()
+        this.sequenceSetting = sequenceSetting
+        invalidate()
     }
 
     private fun blendColors(baseColor: String, blendColor: String): String {
