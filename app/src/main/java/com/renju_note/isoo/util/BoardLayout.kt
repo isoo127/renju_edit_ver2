@@ -25,10 +25,51 @@ class BoardLayout(context: Context, attrs: AttributeSet?) : ConstraintLayout(con
     private val stones = HashMap<String, StoneView>()
     private var boardSetting = BoardSetting.getDefaultSetting()
 
-    class StoneView(private var type : StoneViewType, private var index : Int, private val x : Int, private val y : Int) {
+    interface Element {
+        fun draw(canvas : Canvas?)
+    }
 
-        enum class StoneViewType {
-            BLACK, WHITE, LAST_BLACK, LAST_WHITE
+    inner class Line(private val startX : Float, private val startY : Float, private val endX : Float, private val endY : Float) {
+        fun draw(canvas : Canvas?) {
+            paint.apply {
+                color = Color.RED
+                style = Paint.Style.STROKE
+                strokeWidth = 7f
+                pathEffect = DashPathEffect(floatArrayOf(10f, 5f), 0f)
+            }
+            canvas?.drawLine(startX, startY, endX, endY, paint)
+        }
+    }
+
+    inner class Square(private var left : Float, private var top : Float, private var right : Float, private var bottom : Float) {
+        fun draw(canvas : Canvas?) {
+            paint.apply {
+                color = Color.parseColor("#2B000000")
+                style = Paint.Style.FILL
+            }
+            val tmp = lineInterval / 2
+            val rect = RectF(left - tmp, top - tmp, right + tmp, bottom + tmp)
+            val path = Path()
+            path.addRoundRect(rect, 40f, 40f, Path.Direction.CW)
+            canvas?.drawPath(path, paint)
+        }
+    }
+
+    inner class Point(private val x : Float, private val y : Float) {
+        fun draw(canvas : Canvas?) {
+            paint.apply {
+                color = Color.RED
+            }
+            canvas?.drawCircle(x, y, 10f, paint)
+        }
+    }
+
+    enum class StoneViewType { BLACK, WHITE }
+
+    inner class StoneView(private var type : StoneViewType, private var index : Int, private val x : Int, private val y : Int) : Element {
+
+        override fun draw(canvas: Canvas?) {
+            TODO("Not yet implemented")
         }
 
     }
