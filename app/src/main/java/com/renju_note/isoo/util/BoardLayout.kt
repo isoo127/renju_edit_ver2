@@ -2,10 +2,7 @@ package com.renju_note.isoo.util
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Paint
-import android.graphics.Typeface
+import android.graphics.*
 import android.graphics.drawable.GradientDrawable
 import android.util.AttributeSet
 import android.util.Log
@@ -13,19 +10,18 @@ import android.util.TypedValue
 import android.view.Gravity
 import android.view.MotionEvent
 import android.view.View
-import android.widget.EditText
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import com.renju_note.isoo.data.BoardSetting
-import com.renju_note.isoo.data.SequenceSetting
 
 class BoardLayout(context: Context, attrs: AttributeSet?) : ConstraintLayout(context, attrs) {
 
     private var lineInterval : Float = 0f
     private var density : Float = 0f
     private val paint = Paint()
-    private val coordinateViewID = ArrayList<Int>()
+    private val bounds = Rect()
+
     private val stones = HashMap<String, StoneView>()
     private var boardSetting = BoardSetting.getDefaultSetting()
 
@@ -152,11 +148,14 @@ class BoardLayout(context: Context, attrs: AttributeSet?) : ConstraintLayout(con
 
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
-        paint.strokeWidth = (width / 351.3 + 0.5).toInt().toFloat()
+        paint.isAntiAlias = true
+        // board background
         paint.color = Color.parseColor(boardSetting.boardColor)
         canvas!!.drawRect(0f, 0f, width.toFloat(), height.toFloat(), paint)
 
+        // board lines
         paint.color = Color.parseColor(blendColors("#FFFFFF", boardSetting.lineColor))
+        paint.strokeWidth = (width / 351.3 + 0.5).toInt().toFloat()
         val x = lineInterval
         for (i in 1..15) {
             canvas.drawLine(x * i + x / 2, x - x / 2, x * i + x / 2, x * 15 - x / 2, paint)
@@ -170,6 +169,24 @@ class BoardLayout(context: Context, attrs: AttributeSet?) : ConstraintLayout(con
 
         canvas.drawLine(x / 2, x * 15, x / 2, x * 16, paint)
         canvas.drawLine(0f, x * 15 + x / 2, x, x * 15 + x / 2, paint)
+
+        // board coordinate
+        paint.textSize = lineInterval / 2.2f
+        paint.typeface = Typeface.MONOSPACE
+        for(i in 0..14) {
+            val mText = (15 - i).toString()
+            paint.getTextBounds("45", 0, mText.length, bounds)
+            val textWidth = bounds.width()
+            val textHeight = bounds.height()
+            canvas.drawText(mText, x / 2 - textWidth / 2, x * i + x / 2 + textHeight / 2, paint)
+        }
+        for(i in 0..14) {
+            val mText = (i + 65).toChar().toString()
+            paint.getTextBounds("A", 0, mText.length, bounds)
+            val textWidth = bounds.width()
+            val textHeight = bounds.height()
+            canvas.drawText(mText, x * (i + 1) + x / 2 - textWidth / 2, x * 15 + x / 2 + textHeight / 2, paint)
+        }
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -190,31 +207,6 @@ class BoardLayout(context: Context, attrs: AttributeSet?) : ConstraintLayout(con
             e.printStackTrace()
         }
         return true
-    }
-
-    @SuppressLint("SetTextI18n")
-    private fun addCoordinate(i : Int, mode : Int) {
-        val size = LayoutParams((lineInterval - 2).toInt(), (lineInterval - 2).toInt())
-        val constraintSet = ConstraintSet()
-        val num = TextView(context)
-        num.setTextSize(TypedValue.COMPLEX_UNIT_DIP, (lineInterval / 2.125 / density).toInt().toFloat())
-        num.gravity = Gravity.CENTER
-        num.id = View.generateViewId()
-        coordinateViewID.add(num.id)
-        num.setTextColor(Color.parseColor(boardSetting.lineColor))
-        num.typeface = Typeface.MONOSPACE
-        this.addView(num, i, size)
-        constraintSet.clone(this)
-        if (mode == 0) { // number coordinate
-            num.text = (i + 1).toString()
-            constraintSet.connect(num.id, ConstraintSet.TOP, this.id, ConstraintSet.TOP, (lineInterval * (15 - i) - lineInterval / 2).toInt() - (lineInterval / 2 - 1).toInt())
-            constraintSet.connect(num.id, ConstraintSet.LEFT, this.id, ConstraintSet.LEFT, (lineInterval * 0.5).toInt() - (lineInterval / 2 - 1).toInt())
-        } else if (mode == 1) { // character coordinate
-            num.text = (i + 65).toChar().toString()
-            constraintSet.connect(num.id, ConstraintSet.TOP, this.id, ConstraintSet.TOP, (lineInterval * 15.5).toInt() - (lineInterval / 2 - 1).toInt())
-            constraintSet.connect(num.id, ConstraintSet.LEFT, this.id, ConstraintSet.LEFT, (lineInterval * (i + 1) + lineInterval / 2).toInt() - (lineInterval / 2 - 1).toInt())
-        }
-        constraintSet.applyTo(this)
     }
 
     fun placeStones(addStones : ArrayList<Pair<String, StoneView>>?, deleteStonesID : ArrayList<String>?) {
@@ -254,15 +246,6 @@ class BoardLayout(context: Context, attrs: AttributeSet?) : ConstraintLayout(con
 
     fun updateBoardStatus(boardSetting : BoardSetting) {
         this.boardSetting = boardSetting
-        postDelayed({
-            if(coordinateViewID.isNotEmpty()) {
-                coordinateViewID.forEach { id -> this.removeViewInLayout(findViewById(id)) }
-            }
-            for (i in 0..14) {
-                addCoordinate(i, 0)
-                addCoordinate(i, 1)
-            }
-        }, 100)
         stones.keys.forEach { key ->
             stones[key]!!.updateStoneView()
         }
