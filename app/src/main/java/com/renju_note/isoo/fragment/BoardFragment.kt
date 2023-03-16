@@ -46,9 +46,9 @@ class BoardFragment : Fragment() {
 
     // for drawing mode
     enum class DrawingMode {
-        LINE_MODE, AREA_MODE, ARROW_MODE
+        LINE, AREA, ARROW
     }
-    private var drawingMode = DrawingMode.LINE_MODE
+    private var drawingMode = DrawingMode.LINE
     private var points = ArrayList<Pair<Int, Int>>()
 
     enum class EditMode {
@@ -187,36 +187,36 @@ class BoardFragment : Fragment() {
                 confirmDialog.show()
             }
             when(drawingMode) {
-                DrawingMode.LINE_MODE -> {
+                DrawingMode.LINE -> {
                     popupBinding.popupDrawingModeLineBtn.setBackgroundResource(R.drawable.mode_select)
                     popupBinding.popupDrawingModeAreaBtn.background = null
                     popupBinding.popupDrawingModeArrowBtn.background = null
                 }
-                DrawingMode.AREA_MODE -> {
+                DrawingMode.AREA -> {
                     popupBinding.popupDrawingModeLineBtn.background = null
                     popupBinding.popupDrawingModeAreaBtn.setBackgroundResource(R.drawable.mode_select)
                     popupBinding.popupDrawingModeArrowBtn.background = null
                 }
-                DrawingMode.ARROW_MODE -> {
+                DrawingMode.ARROW -> {
                     popupBinding.popupDrawingModeLineBtn.background = null
                     popupBinding.popupDrawingModeAreaBtn.background = null
                     popupBinding.popupDrawingModeArrowBtn.setBackgroundResource(R.drawable.mode_select)
                 }
             }
             popupBinding.popupDrawingModeLineBtn.setOnClickListener {
-                drawingMode = DrawingMode.LINE_MODE
+                drawingMode = DrawingMode.LINE
                 popupBinding.popupDrawingModeLineBtn.setBackgroundResource(R.drawable.mode_select)
                 popupBinding.popupDrawingModeAreaBtn.background = null
                 popupBinding.popupDrawingModeArrowBtn.background = null
             }
             popupBinding.popupDrawingModeAreaBtn.setOnClickListener {
-                drawingMode = DrawingMode.AREA_MODE
+                drawingMode = DrawingMode.AREA
                 popupBinding.popupDrawingModeLineBtn.background = null
                 popupBinding.popupDrawingModeAreaBtn.setBackgroundResource(R.drawable.mode_select)
                 popupBinding.popupDrawingModeArrowBtn.background = null
             }
             popupBinding.popupDrawingModeArrowBtn.setOnClickListener {
-                drawingMode = DrawingMode.ARROW_MODE
+                drawingMode = DrawingMode.ARROW
                 popupBinding.popupDrawingModeLineBtn.background = null
                 popupBinding.popupDrawingModeAreaBtn.background = null
                 popupBinding.popupDrawingModeArrowBtn.setBackgroundResource(R.drawable.mode_select)
@@ -296,7 +296,7 @@ class BoardFragment : Fragment() {
                     }
                 } else {
                     when(drawingMode) {
-                        DrawingMode.LINE_MODE -> {
+                        DrawingMode.LINE -> {
                             if(points.isEmpty()) {
                                 points.add(Pair(x, y))
                                 binding.boardBoard.addPoint(binding.boardBoard.Point(x, y, settings.boardSetting.drawLineColor))
@@ -307,7 +307,7 @@ class BoardFragment : Fragment() {
                                 points.clear()
                             }
                         }
-                        DrawingMode.AREA_MODE -> {
+                        DrawingMode.AREA -> {
                             if(points.isEmpty()) {
                                 points.add(Pair(x, y))
                                 binding.boardBoard.addPoint(binding.boardBoard.Point(x, y, settings.boardSetting.drawAreaColor))
@@ -318,7 +318,7 @@ class BoardFragment : Fragment() {
                                 points.clear()
                             }
                         }
-                        DrawingMode.ARROW_MODE -> {
+                        DrawingMode.ARROW -> {
                             if(points.isEmpty()) {
                                 points.add(Pair(x, y))
                                 binding.boardBoard.addPoint(binding.boardBoard.Point(x, y, settings.boardSetting.drawArrowColor))

@@ -41,6 +41,10 @@ class BoardLayout(context: Context, attrs: AttributeSet?) : ConstraintLayout(con
             }
             canvas?.drawLine(getRealX(startX), getRealY(startY), getRealX(endX), getRealY(endY), paint)
         }
+
+        fun hasNoLength() : Boolean {
+            return (startX == endX) && (startY == endY)
+        }
     }
 
     inner class Area(private var left : Int, private var top : Int, private var right : Int, private var bottom : Int) : Element {
@@ -107,6 +111,10 @@ class BoardLayout(context: Context, attrs: AttributeSet?) : ConstraintLayout(con
             paint.pathEffect = null
             paint.color = Color.parseColor(arrowColor)
             canvas?.drawPath(path, paint)
+        }
+
+        fun hasNoLength() : Boolean {
+            return (startX == endX) && (startY == endY)
         }
     }
 
@@ -350,6 +358,7 @@ class BoardLayout(context: Context, attrs: AttributeSet?) : ConstraintLayout(con
     }
 
     fun addLine(line : Line) {
+        if(line.hasNoLength()) return
         drawingElements.add(line)
         invalidate()
     }
@@ -360,6 +369,7 @@ class BoardLayout(context: Context, attrs: AttributeSet?) : ConstraintLayout(con
     }
 
     fun addArrow(arrow : Arrow) {
+        if(arrow.hasNoLength()) return
         drawingElements.add(arrow)
         invalidate()
     }
