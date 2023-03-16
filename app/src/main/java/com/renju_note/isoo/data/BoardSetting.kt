@@ -8,6 +8,9 @@ data class BoardSetting (
     var lastStoneStrokeColor : String,
     var textColor : String,
     var nodeColor : String,
+    var drawLineColor : String,
+    var drawAreaColor : String,
+    var drawArrowColor : String
 ) {
 
     companion object {
@@ -17,7 +20,11 @@ data class BoardSetting (
             val lastStoneStrokeColor = "#D32560"
             val textColor = "#0000FF"
             val nodeColor = "#0000FF"
-            return BoardSetting(boardColor, lineColor, lastStoneStrokeColor, textColor, nodeColor)
+            val drawLineColor = "#FF0000"
+            val drawAreaColor = "#2B000000"
+            val drawArrowColor = "#65000000"
+            return BoardSetting(boardColor, lineColor, lastStoneStrokeColor, textColor, nodeColor,
+                drawLineColor, drawAreaColor, drawArrowColor)
         }
     }
 
@@ -27,6 +34,9 @@ data class BoardSetting (
         pref.setString("lastStoneStrokeColor", lastStoneStrokeColor)
         pref.setString("BoardTextColor", textColor)
         pref.setString("nodeColor", nodeColor)
+        pref.setString("drawLineColor", drawLineColor)
+        pref.setString("drawAreaColor", drawAreaColor)
+        pref.setString("drawArrowColor", drawArrowColor)
     }
 
     fun load(pref : PreferenceUtil) {
@@ -35,6 +45,9 @@ data class BoardSetting (
         lastStoneStrokeColor = pref.getString("lastStoneStrokeColor", "#D32560")
         textColor = pref.getString("BoardTextColor", "#0000FF")
         nodeColor = pref.getString("nodeColor", "#0000FF")
+        drawLineColor = pref.getString("drawLineColor", "#FF0000")
+        drawAreaColor = pref.getString("drawAreaColor", "#2B000000")
+        drawArrowColor = pref.getString("drawArrowColor", "#65000000")
     }
 
 }

@@ -1,8 +1,5 @@
 package com.renju_note.isoo.fragment
 
-import android.animation.AnimatorSet
-import android.animation.ObjectAnimator
-import android.animation.StateListAnimator
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.GradientDrawable
@@ -10,7 +7,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.animation.AlphaAnimation
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -61,6 +57,13 @@ class SettingFragment : Fragment() {
         val boardFragment = requireActivity().supportFragmentManager.findFragmentByTag("f0") as BoardFragment
         boardFragment.updateBoard()
         boardFragment.updateTextAreaStatus()
+    }
+
+    private fun update(isUpdateMode : Boolean) {
+        val boardFragment = requireActivity().supportFragmentManager.findFragmentByTag("f0") as BoardFragment
+        boardFragment.updateBoard()
+        boardFragment.updateTextAreaStatus()
+        if(isUpdateMode) boardFragment.updateMode()
     }
 
     private fun colorSettingInit() {
@@ -183,6 +186,48 @@ class SettingFragment : Fragment() {
                             }
                         })
                     }
+                    8 -> {
+                        val colorPickerDialog = ColorPickerDialog(requireContext(), requireActivity(), settings.boardSetting.drawLineColor)
+                        colorPickerDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+                        colorPickerDialog.show()
+                        colorPickerDialog.setOnApplyColorListener(object : ColorPickerDialog.OnApplyColorListener {
+                            override fun onApplyColor(color: String) {
+                                settings.boardSetting.drawLineColor = color
+                                binding.settingColorRv.getChildAt(position).findViewById<View>(R.id.item_color_preview).background =
+                                    makePreviewDrawable(color)
+                                settings.save(pref)
+                                update()
+                            }
+                        })
+                    }
+                    9 -> {
+                        val colorPickerDialog = ColorPickerDialog(requireContext(), requireActivity(), settings.boardSetting.drawAreaColor)
+                        colorPickerDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+                        colorPickerDialog.show()
+                        colorPickerDialog.setOnApplyColorListener(object : ColorPickerDialog.OnApplyColorListener {
+                            override fun onApplyColor(color: String) {
+                                settings.boardSetting.drawAreaColor = color
+                                binding.settingColorRv.getChildAt(position).findViewById<View>(R.id.item_color_preview).background =
+                                    makePreviewDrawable(color)
+                                settings.save(pref)
+                                update()
+                            }
+                        })
+                    }
+                    10 -> {
+                        val colorPickerDialog = ColorPickerDialog(requireContext(), requireActivity(), settings.boardSetting.drawArrowColor)
+                        colorPickerDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+                        colorPickerDialog.show()
+                        colorPickerDialog.setOnApplyColorListener(object : ColorPickerDialog.OnApplyColorListener {
+                            override fun onApplyColor(color: String) {
+                                settings.boardSetting.drawArrowColor = color
+                                binding.settingColorRv.getChildAt(position).findViewById<View>(R.id.item_color_preview).background =
+                                    makePreviewDrawable(color)
+                                settings.save(pref)
+                                update()
+                            }
+                        })
+                    }
                 }
             }
         })
@@ -195,6 +240,7 @@ class SettingFragment : Fragment() {
             binding.settingDisplayRv.addItemDecoration(DividerItemDecoration(requireContext(), 1))
         (binding.settingDisplayRv.adapter as SettingDisplayRVAdapter).setOnItemCheckListener(object : SettingDisplayRVAdapter.OnItemCheckListener {
             override fun onItemCheck(position: Int, isCheck: Boolean) {
+                var isUpdateMode = false
                 when(position) {
                     0 -> {
                         settings.textAreaSetting.isVisible = isCheck
@@ -204,8 +250,18 @@ class SettingFragment : Fragment() {
                         settings.sequenceSetting.sequenceVisible = isCheck
                         settings.save(pref)
                     }
+                    2 -> {
+                        settings.modeSetting.canUseTextMode = isCheck
+                        settings.save(pref)
+                        isUpdateMode = true
+                    }
+                    3 -> {
+                        settings.modeSetting.canUseDrawMode = isCheck
+                        settings.save(pref)
+                        isUpdateMode = true
+                    }
                 }
-                update()
+                update(isUpdateMode)
             }
         })
     }

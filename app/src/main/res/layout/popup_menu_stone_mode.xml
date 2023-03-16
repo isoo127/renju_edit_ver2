@@ -6,7 +6,7 @@
     android:rowCount="3">
 
     <ImageButton
-        android:id="@+id/popup_delete_btn"
+        android:id="@+id/popup_stone_mode_delete_btn"
         style="@android:style/Widget.Material.Button.Borderless"
         android:layout_width="48dp"
         android:layout_height="50dp"
@@ -17,7 +17,7 @@
         android:src="@drawable/board_delete"/>
 
     <ImageButton
-        android:id="@+id/popup_index_here_btn"
+        android:id="@+id/popup_stone_mode_index_here_btn"
         style="@android:style/Widget.Material.Button.Borderless"
         android:layout_width="48dp"
         android:layout_height="50dp"

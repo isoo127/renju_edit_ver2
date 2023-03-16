@@ -8,6 +8,7 @@ import android.view.MotionEvent
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.renju_note.isoo.data.BoardSetting
 import com.renju_note.isoo.data.SequenceSetting
+import kotlin.math.*
 
 class BoardLayout(context: Context, attrs: AttributeSet?) : ConstraintLayout(context, attrs) {
 
@@ -21,7 +22,7 @@ class BoardLayout(context: Context, attrs: AttributeSet?) : ConstraintLayout(con
 
     private val stones = HashMap<String, StoneView>()
     private val childs = ArrayList<Child>()
-    private val drawingElements = ArrayList<Element>() // Line, Area
+    private val drawingElements = ArrayList<Element>() // Line, Area, Arrow
     private val points = ArrayList<Point>()
 
     interface Element {
@@ -29,9 +30,11 @@ class BoardLayout(context: Context, attrs: AttributeSet?) : ConstraintLayout(con
     }
 
     inner class Line(private val startX : Int, private val startY : Int, private val endX : Int, private val endY : Int) : Element {
+        private val lineColor = boardSetting.drawLineColor
+
         override fun draw(canvas : Canvas?) {
             paint.apply {
-                color = Color.RED
+                color = Color.parseColor(lineColor)
                 style = Paint.Style.STROKE
                 strokeWidth = lineInterval / 9.4107f
                 pathEffect = DashPathEffect(floatArrayOf(10f, 5f), 0f)
@@ -41,9 +44,11 @@ class BoardLayout(context: Context, attrs: AttributeSet?) : ConstraintLayout(con
     }
 
     inner class Area(private var left : Int, private var top : Int, private var right : Int, private var bottom : Int) : Element {
+        private val areaColor = boardSetting.drawAreaColor
+
         override fun draw(canvas : Canvas?) {
             paint.apply {
-                color = Color.parseColor("#2B000000")
+                color = Color.parseColor(areaColor)
                 style = Paint.Style.FILL
             }
             if(left > right) {
@@ -57,17 +62,60 @@ class BoardLayout(context: Context, attrs: AttributeSet?) : ConstraintLayout(con
                 bottom = tmp
             }
             val margin = lineInterval / 2
-            val rect = RectF(left - margin, top - margin, right + margin, bottom + margin)
+            val rect = RectF(getRealX(left) - margin, getRealY(top) - margin, getRealX(right) + margin, getRealY(bottom) + margin)
             val path = Path()
             path.addRoundRect(rect, lineInterval / 1.6468f, lineInterval / 1.6468f, Path.Direction.CW)
             canvas?.drawPath(path, paint)
         }
     }
 
-    inner class Point(private val x : Int, private val y : Int) : Element {
+    inner class Arrow(private val startX : Int, private val startY : Int, private val endX : Int, private val endY : Int) : Element {
+        private val arrowColor = boardSetting.drawArrowColor
+
+        override fun draw(canvas: Canvas?) {
+            val width = lineInterval / 2
+            val startX = getRealX(this.startX)
+            val startY = getRealY(this.startY)
+            val endX = getRealX(this.endX)
+            val endY = getRealY(this.endY)
+            val angle = atan2((endX - startX), (endY - startY))
+            val angle90 = angle - Math.toRadians(90.0)
+
+            val p1 = Pair(startX + width/2*sin(angle90), startY + width/2*cos(angle90))
+            val p2 = Pair(startX - width/2*sin(angle90), startY - width/2*cos(angle90))
+            val p3 = Pair(endX - sin(angle)*width + sin(angle90)*width/2,
+                endY - cos(angle)*width + cos(angle90)*width/2)
+            val p4 = Pair(endX - sin(angle)*width + sin(angle90)*width,
+                endY - cos(angle)*width + cos(angle90)*width)
+            val p5 = Pair(endX - sin(angle)*width - sin(angle90)*width/2,
+                endY - cos(angle)*width - cos(angle90)*width/2)
+            val p6 = Pair(endX - sin(angle)*width - sin(angle90)*width,
+                endY - cos(angle)*width - cos(angle90)*width)
+
+            val path = Path()
+            path.moveTo(p1.first.toFloat(), p1.second.toFloat())
+            path.lineTo(p2.first.toFloat(), p2.second.toFloat())
+            path.lineTo(p5.first.toFloat(), p5.second.toFloat())
+            path.lineTo(p6.first.toFloat(), p6.second.toFloat())
+            path.lineTo(endX, endY)
+            path.lineTo(p4.first.toFloat(), p4.second.toFloat())
+            path.lineTo(p3.first.toFloat(), p3.second.toFloat())
+            path.lineTo(p1.first.toFloat(), p1.second.toFloat())
+            path.close()
+
+            paint.style = Paint.Style.FILL
+            paint.pathEffect = null
+            paint.color = Color.parseColor(arrowColor)
+            canvas?.drawPath(path, paint)
+        }
+    }
+
+    inner class Point(private val x : Int, private val y : Int, private val pointColor : String) : Element {
         override fun draw(canvas : Canvas?) {
             paint.apply {
-                color = Color.RED
+                color = Color.parseColor(pointColor)
+                style = Paint.Style.FILL
+                pathEffect = null
             }
             canvas?.drawCircle(getRealX(x), getRealY(y), lineInterval / 6.5875f, paint)
         }
@@ -93,6 +141,7 @@ class BoardLayout(context: Context, attrs: AttributeSet?) : ConstraintLayout(con
         override fun draw(canvas: Canvas?) {
             val radius = lineInterval / 2 - 2
             paint.apply {
+                pathEffect = null
                 strokeWidth = (width / 351.3 + 0.5).toInt().toFloat()
                 color = if(index == stones.size)
                     Color.parseColor(blendColors("#FFFFFF", boardSetting.lastStoneStrokeColor))
@@ -129,6 +178,9 @@ class BoardLayout(context: Context, attrs: AttributeSet?) : ConstraintLayout(con
 
     inner class Child(private var text : String, private val x : Int, private val y : Int) : Element {
         override fun draw(canvas: Canvas?) {
+            paint.pathEffect = null
+            paint.strokeWidth = (width / 351.3 + 0.5).toInt().toFloat()
+            paint.style = Paint.Style.FILL
             if (text.isNotEmpty()) {
                 paint.color = Color.parseColor(blendColors("#FFFFFF", boardSetting.boardColor))
                 paint.getTextBounds(text, 0, text.length, bounds)
@@ -191,12 +243,24 @@ class BoardLayout(context: Context, attrs: AttributeSet?) : ConstraintLayout(con
         super.onDraw(canvas)
         paint.isAntiAlias = true
         drawBoard(canvas)
+        drawingElements.forEach { drawingElement ->
+            if(drawingElement is Line) drawingElement.draw(canvas)
+        }
         childs.forEach { child -> child.draw(canvas) }
         stones.keys.forEach { key -> stones[key]?.draw(canvas) }
+        drawingElements.forEach { drawingElement ->
+            if(drawingElement is Arrow) drawingElement.draw(canvas)
+        }
+        drawingElements.forEach { drawingElement ->
+            if(drawingElement is Area) drawingElement.draw(canvas)
+        }
+        points.forEach { point -> point.draw(canvas) }
     }
 
     private fun drawBoard(canvas : Canvas?) {
         // board background
+        paint.pathEffect = null
+        paint.style = Paint.Style.FILL
         paint.color = Color.parseColor(boardSetting.boardColor)
         canvas!!.drawRect(0f, 0f, width.toFloat(), height.toFloat(), paint)
 
@@ -282,6 +346,37 @@ class BoardLayout(context: Context, attrs: AttributeSet?) : ConstraintLayout(con
     fun removeAllStones() {
         stones.clear()
         childs.clear()
+        invalidate()
+    }
+
+    fun addLine(line : Line) {
+        drawingElements.add(line)
+        invalidate()
+    }
+
+    fun addArea(area : Area) {
+        drawingElements.add(area)
+        invalidate()
+    }
+
+    fun addArrow(arrow : Arrow) {
+        drawingElements.add(arrow)
+        invalidate()
+    }
+
+    fun addPoint(point : Point) {
+        points.add(point)
+        invalidate()
+    }
+
+    fun deleteLastDrawingElement() {
+        if(drawingElements.isNotEmpty())
+            drawingElements.removeLast()
+        invalidate()
+    }
+
+    fun deleteAllPoints() {
+        points.clear()
         invalidate()
     }
 

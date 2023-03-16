@@ -24,6 +24,7 @@
     <string name="capture_confirm">Are you sure you want to capture this board?</string>
     <string name="new_file_confirm">Are you sure you want to load a new board?</string>
     <string name="delete_confirm">Are you sure you want to delete this move?</string>
+    <string name="delete_drawing_element_confirm">Are you sure you want to delete recent drawing?</string>
     <string name="start_index_confirm">Are you sure you want to set start index here?</string>
 
     <string name="cancel">Cancel</string>
@@ -42,7 +43,13 @@
     <string name="setting_text_box_color">Text box color</string>
     <string name="setting_text_box_stroke_color">Text box stroke color</string>
     <string name="setting_text_box_text_color">Text box text color</string>
+    <string name="setting_draw_line_color">Drawing line color</string>
+    <string name="setting_draw_area_color">Drawing area color</string>
+    <string name="setting_draw_arrow_color">Drawing arrow color</string>
+
     <string name="setting_sequence_visible">Show sequence</string>
     <string name="setting_text_box_visible">Show text box</string>
+    <string name="setting_text_mode_on">Use text mode</string>
+    <string name="setting_draw_mode_on">Use drawing mode</string>
     <string name="default_setting_warning">Are you sure you want to reset your settings?</string>
 </resources>

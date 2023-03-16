@@ -32,6 +32,14 @@ class SettingDisplayRVAdapter(val context : Context) : RecyclerView.Adapter<Sett
                     binding.itemCheckText.text = context.getString(R.string.setting_sequence_visible)
                     binding.itemCheckCheckbox.isChecked = settings.sequenceSetting.sequenceVisible
                 }
+                2 -> {
+                    binding.itemCheckText.text = context.getString(R.string.setting_text_mode_on)
+                    binding.itemCheckCheckbox.isChecked = settings.modeSetting.canUseTextMode
+                }
+                3 -> {
+                    binding.itemCheckText.text = context.getString(R.string.setting_draw_mode_on)
+                    binding.itemCheckCheckbox.isChecked = settings.modeSetting.canUseDrawMode
+                }
             }
             binding.itemCheckCheckbox.isClickable = false
             binding.itemCheckCheckbox.setOnCheckedChangeListener { _, b -> onItemClickListener?.onItemCheck(position, b) }
@@ -71,6 +79,6 @@ class SettingDisplayRVAdapter(val context : Context) : RecyclerView.Adapter<Sett
         holder.itemView.setOnClickListener { }
     }
 
-    override fun getItemCount(): Int = 2
+    override fun getItemCount(): Int = 4
 
 }

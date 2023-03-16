@@ -30,7 +30,8 @@ import com.renju_note.isoo.RenjuEditApplication.Companion.settings
 import com.renju_note.isoo.SeqTree
 import com.renju_note.isoo.data.Stone
 import com.renju_note.isoo.databinding.FragmentBoardBinding
-import com.renju_note.isoo.databinding.PopupMenuBoardBinding
+import com.renju_note.isoo.databinding.PopupMenuDrawingModeBinding
+import com.renju_note.isoo.databinding.PopupMenuStoneModeBinding
 import com.renju_note.isoo.dialog.ConfirmDialog
 import com.renju_note.isoo.dialog.PutTextDialog
 import com.renju_note.isoo.util.BoardLayout
@@ -43,10 +44,17 @@ class BoardFragment : Fragment() {
 
     private lateinit var binding : FragmentBoardBinding
 
-    enum class EditMode {
-        PUT_STONE, ADD_TEXT
+    // for drawing mode
+    enum class DrawingMode {
+        LINE_MODE, AREA_MODE, ARROW_MODE
     }
-    private var mode = EditMode.PUT_STONE
+    private var drawingMode = DrawingMode.LINE_MODE
+    private var points = ArrayList<Pair<Int, Int>>()
+
+    enum class EditMode {
+        PUT_STONE, ADD_TEXT, DRAW
+    }
+    private var editMode = EditMode.PUT_STONE
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -107,12 +115,28 @@ class BoardFragment : Fragment() {
         }
 
         binding.boardModeBtn.setOnClickListener {
-            mode = when(mode) {
+            editMode = when(editMode) {
                 EditMode.PUT_STONE -> {
-                    binding.boardModeBtn.setImageResource(R.drawable.board_text_mode)
-                    EditMode.ADD_TEXT
+                    if(settings.modeSetting.canUseTextMode) {
+                        binding.boardModeBtn.setImageResource(R.drawable.board_text_mode)
+                        EditMode.ADD_TEXT
+                    } else if(settings.modeSetting.canUseDrawMode) {
+                        binding.boardModeBtn.setImageResource(R.drawable.board_drawing_mode)
+                        EditMode.DRAW
+                    } else {
+                        EditMode.PUT_STONE
+                    }
                 }
                 EditMode.ADD_TEXT -> {
+                    if(settings.modeSetting.canUseDrawMode) {
+                        binding.boardModeBtn.setImageResource(R.drawable.board_drawing_mode)
+                        EditMode.DRAW
+                    } else {
+                        binding.boardModeBtn.setImageResource(R.drawable.board_stone_mode)
+                        EditMode.PUT_STONE
+                    }
+                }
+                EditMode.DRAW -> {
                     binding.boardModeBtn.setImageResource(R.drawable.board_stone_mode)
                     EditMode.PUT_STONE
                 }
@@ -121,24 +145,85 @@ class BoardFragment : Fragment() {
     }
 
     private fun popupMenu() {
-        val popupBinding = PopupMenuBoardBinding.inflate(layoutInflater)
-        val popupWindow = PopupWindow(
-            popupBinding.root,
-            ViewGroup.LayoutParams.WRAP_CONTENT,
-            ViewGroup.LayoutParams.WRAP_CONTENT,
-            true
-        )
+        if (editMode != EditMode.DRAW) {
+            val popupBinding = PopupMenuStoneModeBinding.inflate(layoutInflater)
+            val popupWindow = PopupWindow(
+                popupBinding.root,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                true
+            )
 
-        popupBinding.popupDeleteBtn.setOnClickListener {
-            delete()
+            popupBinding.popupStoneModeDeleteBtn.setOnClickListener {
+                delete()
+            }
+            popupBinding.popupStoneModeIndexHereBtn.setOnClickListener {
+                startIndexHere()
+            }
+
+            popupWindow.showAsDropDown(binding.boardMenuBtn)
+        } else {
+            val popupBinding = PopupMenuDrawingModeBinding.inflate(layoutInflater)
+            val popupWindow = PopupWindow(
+                popupBinding.root,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                true
+            )
+
+            popupBinding.popupDrawingModeDeleteBtn.setOnClickListener {
+                val confirmDialog = ConfirmDialog(requireContext(), resources.getString(R.string.delete_drawing_element_confirm))
+                confirmDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+                confirmDialog.setOnResponseListener(object : ConfirmDialog.OnResponseListener {
+                    override fun confirm() {
+                        confirmDialog.dismiss()
+                        binding.boardBoard.deleteLastDrawingElement()
+                    }
+
+                    override fun refuse() {
+                        confirmDialog.dismiss()
+                    }
+                })
+                confirmDialog.show()
+            }
+            when(drawingMode) {
+                DrawingMode.LINE_MODE -> {
+                    popupBinding.popupDrawingModeLineBtn.setBackgroundResource(R.drawable.mode_select)
+                    popupBinding.popupDrawingModeAreaBtn.background = null
+                    popupBinding.popupDrawingModeArrowBtn.background = null
+                }
+                DrawingMode.AREA_MODE -> {
+                    popupBinding.popupDrawingModeLineBtn.background = null
+                    popupBinding.popupDrawingModeAreaBtn.setBackgroundResource(R.drawable.mode_select)
+                    popupBinding.popupDrawingModeArrowBtn.background = null
+                }
+                DrawingMode.ARROW_MODE -> {
+                    popupBinding.popupDrawingModeLineBtn.background = null
+                    popupBinding.popupDrawingModeAreaBtn.background = null
+                    popupBinding.popupDrawingModeArrowBtn.setBackgroundResource(R.drawable.mode_select)
+                }
+            }
+            popupBinding.popupDrawingModeLineBtn.setOnClickListener {
+                drawingMode = DrawingMode.LINE_MODE
+                popupBinding.popupDrawingModeLineBtn.setBackgroundResource(R.drawable.mode_select)
+                popupBinding.popupDrawingModeAreaBtn.background = null
+                popupBinding.popupDrawingModeArrowBtn.background = null
+            }
+            popupBinding.popupDrawingModeAreaBtn.setOnClickListener {
+                drawingMode = DrawingMode.AREA_MODE
+                popupBinding.popupDrawingModeLineBtn.background = null
+                popupBinding.popupDrawingModeAreaBtn.setBackgroundResource(R.drawable.mode_select)
+                popupBinding.popupDrawingModeArrowBtn.background = null
+            }
+            popupBinding.popupDrawingModeArrowBtn.setOnClickListener {
+                drawingMode = DrawingMode.ARROW_MODE
+                popupBinding.popupDrawingModeLineBtn.background = null
+                popupBinding.popupDrawingModeAreaBtn.background = null
+                popupBinding.popupDrawingModeArrowBtn.setBackgroundResource(R.drawable.mode_select)
+            }
+
+            popupWindow.showAsDropDown(binding.boardMenuBtn)
         }
-        popupBinding.popupIndexHereBtn.setOnClickListener {
-            startIndexHere()
-        }
-
-        binding.boardBoard.draw(Canvas())
-
-        popupWindow.showAsDropDown(binding.boardMenuBtn)
     }
 
     private fun startIndexHere() {
@@ -183,28 +268,67 @@ class BoardFragment : Fragment() {
     private fun boardClicked() {
         binding.boardBoard.setOnBoardTouchListener(object : BoardLayout.OnBoardTouchListener() {
             override fun getCoordinates(x: Int, y: Int) {
-                val before = boardManager.getNowBoardStatus()
-                if(mode == EditMode.ADD_TEXT) {
-                    val putTextDialog = PutTextDialog(requireContext())
-                    putTextDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-                    putTextDialog.setOnResponseListener(object : PutTextDialog.OnResponseListener {
-                        override fun cancel() {
-                            putTextDialog.dismiss()
-                        }
+                if(editMode != EditMode.DRAW) {
+                    val before = boardManager.getNowBoardStatus()
+                    if (editMode == EditMode.ADD_TEXT) {
+                        val putTextDialog = PutTextDialog(requireContext())
+                        putTextDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+                        putTextDialog.setOnResponseListener(object :
+                            PutTextDialog.OnResponseListener {
+                            override fun cancel() {
+                                putTextDialog.dismiss()
+                            }
 
-                        override fun ok(text: String) {
-                            putTextDialog.dismiss()
-                            if(boardManager.addNewChild(x, y, text)) {
-                                val after = boardManager.getNowBoardStatus()
-                                updateBoard(before, after)
+                            override fun ok(text: String) {
+                                putTextDialog.dismiss()
+                                if (boardManager.addNewChild(x, y, text)) {
+                                    val after = boardManager.getNowBoardStatus()
+                                    updateBoard(before, after)
+                                }
+                            }
+                        })
+                        putTextDialog.show()
+                    } else {
+                        if (boardManager.putStone(x, y)) {
+                            val after = boardManager.getNowBoardStatus()
+                            updateBoard(before, after)
+                        }
+                    }
+                } else {
+                    when(drawingMode) {
+                        DrawingMode.LINE_MODE -> {
+                            if(points.isEmpty()) {
+                                points.add(Pair(x, y))
+                                binding.boardBoard.addPoint(binding.boardBoard.Point(x, y, settings.boardSetting.drawLineColor))
+                            } else {
+                                binding.boardBoard.deleteAllPoints()
+                                binding.boardBoard.addLine(binding.boardBoard.Line(
+                                    points[0].first, points[0].second, x, y))
+                                points.clear()
                             }
                         }
-                    })
-                    putTextDialog.show()
-                } else {
-                    if (boardManager.putStone(x, y)) {
-                        val after = boardManager.getNowBoardStatus()
-                        updateBoard(before, after)
+                        DrawingMode.AREA_MODE -> {
+                            if(points.isEmpty()) {
+                                points.add(Pair(x, y))
+                                binding.boardBoard.addPoint(binding.boardBoard.Point(x, y, settings.boardSetting.drawAreaColor))
+                            } else {
+                                binding.boardBoard.deleteAllPoints()
+                                binding.boardBoard.addArea(binding.boardBoard.Area(
+                                    points[0].first, points[0].second, x, y))
+                                points.clear()
+                            }
+                        }
+                        DrawingMode.ARROW_MODE -> {
+                            if(points.isEmpty()) {
+                                points.add(Pair(x, y))
+                                binding.boardBoard.addPoint(binding.boardBoard.Point(x, y, settings.boardSetting.drawArrowColor))
+                            } else {
+                                binding.boardBoard.deleteAllPoints()
+                                binding.boardBoard.addArrow(binding.boardBoard.Arrow(
+                                    points[0].first, points[0].second, x, y))
+                                points.clear()
+                            }
+                        }
                     }
                 }
             }
@@ -237,6 +361,11 @@ class BoardFragment : Fragment() {
         binding.boardTextAreaEt.isVisible = settings.textAreaSetting.isVisible
         binding.boardTextAreaEt.background = makeTextAreaDrawable(settings.textAreaSetting.backgroundColor, settings.textAreaSetting.strokeColor)
         binding.boardTextAreaEt.setTextColor(Color.parseColor(blendColors("#FFFFFF", settings.textAreaSetting.textColor)))
+    }
+
+    fun updateMode() {
+        binding.boardModeBtn.setImageResource(R.drawable.board_stone_mode)
+        editMode = EditMode.PUT_STONE
     }
 
     fun updateBoard() {

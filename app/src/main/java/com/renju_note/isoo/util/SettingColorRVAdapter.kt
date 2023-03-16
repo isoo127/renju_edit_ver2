@@ -58,6 +58,18 @@ class SettingColorRVAdapter(val context : Context) : RecyclerView.Adapter<Settin
                     binding.itemColorText.text = context.getString(R.string.setting_text_box_text_color)
                     binding.itemColorPreview.background = makePreviewDrawable(settings.textAreaSetting.textColor)
                 }
+                8 -> {
+                    binding.itemColorText.text = context.getString(R.string.setting_draw_line_color)
+                    binding.itemColorPreview.background = makePreviewDrawable(settings.boardSetting.drawLineColor)
+                }
+                9 -> {
+                    binding.itemColorText.text = context.getString(R.string.setting_draw_area_color)
+                    binding.itemColorPreview.background = makePreviewDrawable(settings.boardSetting.drawAreaColor)
+                }
+                10 -> {
+                    binding.itemColorText.text = context.getString(R.string.setting_draw_arrow_color)
+                    binding.itemColorPreview.background = makePreviewDrawable(settings.boardSetting.drawArrowColor)
+                }
                 else -> {
                     binding.itemColorText.text = context.getString(R.string.error)
                     binding.itemColorPreview.background = makePreviewDrawable("#FFFFFF")
@@ -95,7 +107,7 @@ class SettingColorRVAdapter(val context : Context) : RecyclerView.Adapter<Settin
         holder.itemView.setOnClickListener { }
     }
 
-    override fun getItemCount(): Int = 8
+    override fun getItemCount(): Int = 11
 
     private fun makePreviewDrawable(color : String) : GradientDrawable {
         val drawable1 = GradientDrawable()
