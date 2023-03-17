@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:columnCount="1"
+    android:rowCount="2"
+    android:background="@color/white">
+
+    <Button
+        android:id="@+id/storage_popup_load_btn"
+        style="@style/StoragePopupMenu"
+        android:text="@string/storage_load"
+        android:textSize="13dp"
+        android:textColor="@color/black"
+        android:minHeight="0dp"
+        android:minWidth="0dp"
+        android:layout_gravity="center"
+        android:layout_width="80dp"
+        android:layout_height="40dp"/>
+
+    <Button
+        android:id="@+id/storage_popup_delete_btn"
+        style="@style/StoragePopupMenu"
+        android:text="@string/storage_delete"
+        android:textSize="13dp"
+        android:textColor="@color/black"
+        android:minHeight="0dp"
+        android:minWidth="0dp"
+        android:layout_gravity="center"
+        android:layout_width="80dp"
+        android:layout_height="40dp"/>
+
+</GridLayout>

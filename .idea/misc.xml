@@ -14,18 +14,22 @@
         <entry key="..\:/Users/rdrni/Projects/AndroidStudioProjects/renju_edit/app/src/main/res/layout/activity_main.xml" value="0.31431159420289856" />
         <entry key="..\:/Users/rdrni/Projects/AndroidStudioProjects/renju_edit/app/src/main/res/layout/dialog_color_picker.xml" value="0.25" />
         <entry key="..\:/Users/rdrni/Projects/AndroidStudioProjects/renju_edit/app/src/main/res/layout/dialog_confirm.xml" value="0.43974358974358974" />
+        <entry key="..\:/Users/rdrni/Projects/AndroidStudioProjects/renju_edit/app/src/main/res/layout/dialog_loading.xml" value="0.28675213675213673" />
         <entry key="..\:/Users/rdrni/Projects/AndroidStudioProjects/renju_edit/app/src/main/res/layout/dialog_put_text.xml" value="0.43974358974358974" />
         <entry key="..\:/Users/rdrni/Projects/AndroidStudioProjects/renju_edit/app/src/main/res/layout/fragment_board.xml" value="0.31431159420289856" />
         <entry key="..\:/Users/rdrni/Projects/AndroidStudioProjects/renju_edit/app/src/main/res/layout/fragment_setting.xml" value="0.33" />
-        <entry key="..\:/Users/rdrni/Projects/AndroidStudioProjects/renju_edit/app/src/main/res/layout/fragment_storage.xml" value="0.3484375" />
+        <entry key="..\:/Users/rdrni/Projects/AndroidStudioProjects/renju_edit/app/src/main/res/layout/fragment_storage.xml" value="0.33" />
         <entry key="..\:/Users/rdrni/Projects/AndroidStudioProjects/renju_edit/app/src/main/res/layout/item_setting_check.xml" value="0.43974358974358974" />
         <entry key="..\:/Users/rdrni/Projects/AndroidStudioProjects/renju_edit/app/src/main/res/layout/item_setting_color.xml" value="0.43974358974358974" />
+        <entry key="..\:/Users/rdrni/Projects/AndroidStudioProjects/renju_edit/app/src/main/res/layout/item_storage_list.xml" value="0.2858974358974359" />
         <entry key="..\:/Users/rdrni/Projects/AndroidStudioProjects/renju_edit/app/src/main/res/layout/popup_menu_board.xml" value="0.43974358974358974" />
         <entry key="..\:/Users/rdrni/Projects/AndroidStudioProjects/renju_edit/app/src/main/res/layout/popup_menu_drawing_mode.xml" value="0.33" />
         <entry key="..\:/Users/rdrni/Projects/AndroidStudioProjects/renju_edit/app/src/main/res/layout/popup_menu_stone_mode.xml" value="0.28675213675213673" />
+        <entry key="..\:/Users/rdrni/Projects/AndroidStudioProjects/renju_edit/app/src/main/res/layout/popup_menu_storage.xml" value="0.2858974358974359" />
         <entry key="..\:/Users/rdrni/Projects/AndroidStudioProjects/renju_edit/app/src/main/res/menu/board_toobar.xml" value="0.4405982905982906" />
         <entry key="..\:/Users/rdrni/Projects/AndroidStudioProjects/renju_edit/app/src/main/res/menu/board_toolbar.xml" value="0.4405982905982906" />
         <entry key="..\:/Users/rdrni/Projects/AndroidStudioProjects/renju_edit/app/src/main/res/menu/bottom_nav.xml" value="0.3494791666666667" />
+        <entry key="..\:/Users/rdrni/Projects/AndroidStudioProjects/renju_edit/app/src/main/res/menu/storage_menu.xml" value="0.28675213675213673" />
       </map>
     </option>
   </component>

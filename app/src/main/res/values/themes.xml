@@ -22,4 +22,7 @@
         <item name="android:textSize" tools:ignore="SpUsage">20dp</item>
         <item name="fontFamily">@font/spoqa_regular</item>
     </style>
+    <style name="StoragePopupMenu" parent="Widget.AppCompat.Button.Borderless">
+        <item name="textAllCaps">false</item>
+    </style>
 </resources>

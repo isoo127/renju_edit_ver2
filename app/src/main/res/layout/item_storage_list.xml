@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="80dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/white">
+
+   <View
+       android:layout_width="52dp"
+       android:layout_height="52dp"
+       app:layout_constraintStart_toStartOf="@id/item_storage_preview"
+       app:layout_constraintEnd_toEndOf="@id/item_storage_preview"
+       app:layout_constraintBottom_toBottomOf="@id/item_storage_preview"
+       app:layout_constraintTop_toTopOf="@id/item_storage_preview"
+       android:background="@color/default_gray"
+       android:id="@+id/item_storage_preview_bg"/>
+
+   <com.renju_note.isoo.util.BoardPreview
+       android:layout_width="50dp"
+       android:layout_height="50dp"
+       app:layout_constraintTop_toTopOf="parent"
+       app:layout_constraintBottom_toBottomOf="parent"
+       app:layout_constraintStart_toStartOf="parent"
+       android:layout_marginStart="15dp"
+       android:id="@+id/item_storage_preview"/>
+
+   <TextView
+       android:layout_width="wrap_content"
+       android:layout_height="wrap_content"
+       app:layout_constraintTop_toTopOf="@id/item_storage_preview"
+       app:layout_constraintStart_toEndOf="@id/item_storage_preview"
+       android:layout_marginStart="15dp"
+       android:text="Title"
+       android:textSize="17dp"
+       android:fontFamily="@font/spoqa_regular"
+       android:id="@+id/item_storage_title_tv"/>
+
+   <TextView
+       android:layout_width="wrap_content"
+       android:layout_height="wrap_content"
+       app:layout_constraintBottom_toBottomOf="@id/item_storage_preview"
+       app:layout_constraintStart_toEndOf="@id/item_storage_preview"
+       android:layout_marginStart="15dp"
+       android:text="2023-03-17 03:21:53"
+       android:textSize="11dp"
+       android:fontFamily="@font/spoqa_regular"
+       android:id="@+id/item_storage_date_tv"/>
+
+   <ImageButton
+       app:layout_constraintEnd_toEndOf="parent"
+       app:layout_constraintTop_toTopOf="parent"
+       app:layout_constraintBottom_toBottomOf="parent"
+       android:layout_marginEnd="10dp"
+       android:id="@+id/item_storage_menu_btn"
+       style="@android:style/Widget.Material.Button.Borderless"
+       android:layout_width="43dp"
+       android:layout_height="45dp"
+       android:layout_gravity="center|center_vertical"
+       android:padding="12dp"
+       android:scaleType="fitCenter"
+       android:src="@drawable/down_arrow"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

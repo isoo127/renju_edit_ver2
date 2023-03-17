@@ -1,12 +1,11 @@
 package com.renju_note.isoo
 
 import android.app.Application
-import com.renju_note.isoo.data.BoardSetting
-import com.renju_note.isoo.data.ModeSetting
-import com.renju_note.isoo.data.SequenceSetting
-import com.renju_note.isoo.data.TextAreaSetting
+import com.renju_note.isoo.data.*
 import com.renju_note.isoo.util.PreferenceUtil
 import com.renju_note.isoo.util.SeqTreeBoardManager
+import io.realm.Realm
+import io.realm.RealmConfiguration
 
 class RenjuEditApplication : Application() {
 
@@ -42,12 +41,21 @@ class RenjuEditApplication : Application() {
         lateinit var pref : PreferenceUtil
         var settings = Settings()
         var boardManager = SeqTreeBoardManager()
+        var editingFile : StorageElement? = null
     }
 
     override fun onCreate() {
         super.onCreate()
         pref = PreferenceUtil(applicationContext)
         settings.load(pref)
+
+        Realm.init(this)
+        val config : RealmConfiguration = RealmConfiguration.Builder()
+            .allowWritesOnUiThread(true)
+            .name("renju_edit.realm")
+            .deleteRealmIfMigrationNeeded()
+            .build()
+        Realm.setDefaultConfiguration(config)
     }
 
 }

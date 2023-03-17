@@ -120,12 +120,23 @@ class SeqTreeBoardManager : BoardManager {
     override fun <T> loadNodes(tree: T) {
         if(tree is SeqTree)
             seqTree = tree
-        seqTree.setNow_boardTo0()
-        seqTree.now = seqTree.head
         if (seqTree.text_box != null) { // for loading last ver text
-            seqTree.now.boxText = seqTree.text_box
+            seqTree.head.boxText = seqTree.text_box
         }
-        nowIndex = 1
+        val seq = getSequence(getNowBoardStatus())
+        if(seq.isNotEmpty()) {
+            if(seq.first().text == seq.last().text) {
+                seqTree.setNow_boardTo0()
+                seqTree.now = seqTree.head
+                nowIndex = 1
+            } else {
+                nowIndex = seq.last().text.toInt() + 1
+            }
+        } else {
+            seqTree.setNow_boardTo0()
+            seqTree.now = seqTree.head
+            nowIndex = 1
+        }
     }
 
 }

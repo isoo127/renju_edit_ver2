@@ -2,6 +2,7 @@ package com.renju_note.isoo.fragment
 
 import android.app.Activity
 import android.content.ContentValues
+import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Canvas
@@ -12,6 +13,7 @@ import android.graphics.drawable.GradientDrawable
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
+import android.provider.OpenableColumns
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.TypedValue
@@ -25,19 +27,31 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import com.renju_note.isoo.R
 import com.renju_note.isoo.RenjuEditApplication.Companion.boardManager
+import com.renju_note.isoo.RenjuEditApplication.Companion.editingFile
 import com.renju_note.isoo.RenjuEditApplication.Companion.pref
 import com.renju_note.isoo.RenjuEditApplication.Companion.settings
 import com.renju_note.isoo.SeqTree
 import com.renju_note.isoo.data.Stone
+import com.renju_note.isoo.data.StorageElement
 import com.renju_note.isoo.databinding.FragmentBoardBinding
 import com.renju_note.isoo.databinding.PopupMenuDrawingModeBinding
 import com.renju_note.isoo.databinding.PopupMenuStoneModeBinding
 import com.renju_note.isoo.dialog.ConfirmDialog
 import com.renju_note.isoo.dialog.PutTextDialog
 import com.renju_note.isoo.util.BoardLayout
-import java.io.*
+import com.renju_note.isoo.util.LoadingAsync
+import io.realm.Realm
+import io.realm.kotlin.where
+import java.io.InputStream
+import java.io.ObjectInputStream
+import java.io.ObjectOutputStream
+import java.io.OutputStream
+import java.text.SimpleDateFormat
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.util.*
+import kotlin.Comparator
+import kotlin.collections.ArrayList
 
 
 class BoardFragment : Fragment() {
@@ -463,7 +477,7 @@ class BoardFragment : Fragment() {
                         confirmDialog.show()
                     }
                     R.id.save_board -> {
-
+                        saveNowEditingFile()
                     }
                     R.id.new_board -> {
                         val confirmDialog = ConfirmDialog(requireContext(), resources.getString(R.string.new_file_confirm))
@@ -473,6 +487,8 @@ class BoardFragment : Fragment() {
                                 confirmDialog.dismiss()
                                 boardManager.loadNodes(SeqTree())
                                 binding.boardBoard.removeAllStones()
+                                editingFile = null
+                                binding.boardEditingFileNameTv.text = requireContext().getString(R.string.new_file)
                             }
                             override fun refuse() { confirmDialog.dismiss() }
                         })
@@ -530,47 +546,122 @@ class BoardFragment : Fragment() {
         Toast.makeText(context, "Image saved to gallery", Toast.LENGTH_SHORT).show()
     }
 
+    private fun setNowEditingFile(uri : Uri) {
+        fun getFileNameFromUri(context: Context, uri: Uri): String {
+            var fileName = ""
+            val cursor = context.contentResolver.query(uri, null, null, null, null)
+            cursor?.let {
+                if (it.moveToFirst()) {
+                    val displayNameIndex = it.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+                    fileName = it.getString(displayNameIndex)
+                }
+                cursor.close()
+            }
+            return fileName
+        }
+
+        val storageElement = StorageElement(getFileNameFromUri(requireContext(), uri), uri,
+            boardManager.getSequence(boardManager.getNowBoardStatus()))
+        editingFile = storageElement
+        binding.boardEditingFileNameTv.text = editingFile?.title
+
+        val realm = Realm.getDefaultInstance()
+        if(editingFile != null) {
+            realm.beginTransaction()
+            realm.copyToRealmOrUpdate(editingFile!!)
+            realm.commitTransaction()
+        }
+
+        val storageFragment = requireActivity().supportFragmentManager.findFragmentByTag("f1") as StorageFragment?
+        storageFragment?.updateRV()
+    }
+
+    private fun saveNowEditingFile() {
+        if(editingFile != null) {
+            save(editingFile!!.getParsedUri())
+        } else {
+            val intent = Intent(Intent.ACTION_CREATE_DOCUMENT)
+            intent.addCategory(Intent.CATEGORY_OPENABLE)
+            intent.type = "application/*"
+            intent.putExtra(Intent.EXTRA_TITLE, "write_your_file_name")
+            startActivityResultSave.launch(intent)
+        }
+    }
+
+    private fun save(uri : Uri?) {
+        val loadingAsync = LoadingAsync(requireContext())
+        loadingAsync.setProcess(object : LoadingAsync.ProcessListener {
+            override fun process() {
+                val outputStream: OutputStream = requireActivity().contentResolver.openOutputStream(uri!!)!!
+                val os = ObjectOutputStream(outputStream)
+                os.writeObject(boardManager.getSeqTree())
+                os.close()
+                outputStream.close()
+            }
+
+            override fun whenFinished() {
+                Toast.makeText(context, "Save", Toast.LENGTH_SHORT).show()
+                setNowEditingFile(uri!!)
+            }
+
+            override fun whenFailed() {
+                Toast.makeText(context, "Failed to save!", Toast.LENGTH_SHORT).show()
+            }
+        })
+
+        loadingAsync.run()
+    }
+
     private var startActivityResultSave = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
-            val uri: Uri?
             if (result.data != null) {
-                uri = result.data!!.data
-                try {
-                    val outputStream: OutputStream = requireActivity().contentResolver.openOutputStream(uri!!)!!
-                    val os = ObjectOutputStream(outputStream)
-                    os.writeObject(boardManager.getSeqTree())
-                    os.close()
-                    outputStream.close()
-                    Toast.makeText(context, "Save", Toast.LENGTH_SHORT).show()
-                } catch (e: IOException) {
-                    Toast.makeText(context, "Failed to save!", Toast.LENGTH_SHORT).show()
-                }
+                this.requireActivity().contentResolver.takePersistableUriPermission(result.data!!.data!!,
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                this.requireActivity().contentResolver.takePersistableUriPermission(result.data!!.data!!,
+                    Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+                save(result.data!!.data)
             }
         }
     }
 
+    fun load(uri : Uri?) {
+        binding.boardBoard.removeAllStones()
+        val before = ArrayList<Stone>()
+
+        val loadingAsync = LoadingAsync(requireContext())
+        loadingAsync.setProcess(object : LoadingAsync.ProcessListener {
+            override fun process() {
+                val inputStream: InputStream = requireActivity().contentResolver.openInputStream(uri!!)!!
+                val ois = ObjectInputStream(inputStream)
+                val tree : Any = ois.readObject() as SeqTree
+                boardManager.loadNodes(tree)
+                ois.close()
+                inputStream.close()
+            }
+
+            override fun whenFinished() {
+                Toast.makeText(context, "Load", Toast.LENGTH_SHORT).show()
+                val after = boardManager.getNowBoardStatus()
+                updateBoard(before, after)
+                setNowEditingFile(uri!!)
+            }
+
+            override fun whenFailed() {
+                Toast.makeText(context, "Failed to load!", Toast.LENGTH_SHORT).show()
+            }
+        })
+
+        loadingAsync.run()
+    }
+
     private var startActivityResultLoad = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
-            val uri: Uri?
             if (result.data != null) {
-                uri = result.data!!.data
-                try {
-                    val inputStream: InputStream = requireActivity().contentResolver.openInputStream(uri!!)!!
-                    val ois = ObjectInputStream(inputStream)
-                    val tree : Any = ois.readObject() as SeqTree
-                    boardManager.loadNodes(tree)
-                    ois.close()
-                    inputStream.close()
-                    Toast.makeText(context, "Load", Toast.LENGTH_SHORT).show()
-
-                    binding.boardBoard.removeAllStones()
-                    val before = ArrayList<Stone>()
-                    val after = boardManager.getNowBoardStatus()
-                    updateBoard(before, after)
-                } catch (e: IOException) {
-                    Toast.makeText(context, "Failed to load!", Toast.LENGTH_SHORT).show()
-                    e.printStackTrace()
-                }
+                this.requireActivity().contentResolver.takePersistableUriPermission(result.data!!.data!!,
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                this.requireActivity().contentResolver.takePersistableUriPermission(result.data!!.data!!,
+                    Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+                load(result.data!!.data)
             }
         }
     }
