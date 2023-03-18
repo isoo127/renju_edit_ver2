@@ -148,6 +148,7 @@ class BoardFragment : Fragment() {
                         toast = Toast.makeText(requireContext(), requireContext().getText(R.string.drawing_mode), Toast.LENGTH_SHORT)
                         EditMode.DRAW
                     } else {
+                        toast = Toast.makeText(requireContext(), requireContext().getText(R.string.stone_mode), Toast.LENGTH_SHORT)
                         EditMode.PUT_STONE
                     }
                 }
