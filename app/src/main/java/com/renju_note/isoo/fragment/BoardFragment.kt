@@ -70,6 +70,10 @@ class BoardFragment : Fragment() {
     }
     private var editMode = EditMode.PUT_STONE
 
+    private var isStartIndexOn = false
+
+    private lateinit var toast : Toast
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -86,6 +90,9 @@ class BoardFragment : Fragment() {
         editingTextArea()
 
         binding.boardBoard.updateBoardStatus(settings.boardSetting, settings.sequenceSetting)
+
+        toast = Toast(requireContext())
+        toast.duration = Toast.LENGTH_SHORT
 
         return binding.root
     }
@@ -129,13 +136,16 @@ class BoardFragment : Fragment() {
         }
 
         binding.boardModeBtn.setOnClickListener {
+            toast.cancel()
             editMode = when(editMode) {
                 EditMode.PUT_STONE -> {
                     if(settings.modeSetting.canUseTextMode) {
                         binding.boardModeBtn.setImageResource(R.drawable.board_text_mode)
+                        toast = Toast.makeText(requireContext(), requireContext().getText(R.string.text_mode), Toast.LENGTH_SHORT)
                         EditMode.ADD_TEXT
                     } else if(settings.modeSetting.canUseDrawMode) {
                         binding.boardModeBtn.setImageResource(R.drawable.board_drawing_mode)
+                        toast = Toast.makeText(requireContext(), requireContext().getText(R.string.drawing_mode), Toast.LENGTH_SHORT)
                         EditMode.DRAW
                     } else {
                         EditMode.PUT_STONE
@@ -144,17 +154,21 @@ class BoardFragment : Fragment() {
                 EditMode.ADD_TEXT -> {
                     if(settings.modeSetting.canUseDrawMode) {
                         binding.boardModeBtn.setImageResource(R.drawable.board_drawing_mode)
+                        toast = Toast.makeText(requireContext(), requireContext().getText(R.string.drawing_mode), Toast.LENGTH_SHORT)
                         EditMode.DRAW
                     } else {
                         binding.boardModeBtn.setImageResource(R.drawable.board_stone_mode)
+                        toast = Toast.makeText(requireContext(), requireContext().getText(R.string.stone_mode), Toast.LENGTH_SHORT)
                         EditMode.PUT_STONE
                     }
                 }
                 EditMode.DRAW -> {
                     binding.boardModeBtn.setImageResource(R.drawable.board_stone_mode)
+                    toast = Toast.makeText(requireContext(), requireContext().getText(R.string.stone_mode), Toast.LENGTH_SHORT)
                     EditMode.PUT_STONE
                 }
             }
+            toast.show()
         }
     }
 
@@ -171,8 +185,30 @@ class BoardFragment : Fragment() {
             popupBinding.popupStoneModeDeleteBtn.setOnClickListener {
                 delete()
             }
+            if(isStartIndexOn) {
+                popupBinding.popupStoneModeIndexHereBtn.setImageResource(R.drawable.board_index_here_on)
+            } else {
+                popupBinding.popupStoneModeIndexHereBtn.setImageResource(R.drawable.board_index_here_off)
+            }
             popupBinding.popupStoneModeIndexHereBtn.setOnClickListener {
-                startIndexHere()
+                toast.cancel()
+                if(!isStartIndexOn) {
+                    if(boardManager.getNowIndex() == 1) settings.sequenceSetting.startPoint = 0
+                    else settings.sequenceSetting.startPoint = boardManager.getNowIndex() - 2
+                    binding.boardBoard.updateBoardStatus(settings.boardSetting, settings.sequenceSetting)
+                    settings.save(pref)
+                    isStartIndexOn = true
+                    popupBinding.popupStoneModeIndexHereBtn.setImageResource(R.drawable.board_index_here_on)
+                    toast = Toast.makeText(requireContext(), requireContext().getText(R.string.index_here_on), Toast.LENGTH_SHORT)
+                } else {
+                    settings.sequenceSetting.startPoint = 0
+                    binding.boardBoard.updateBoardStatus(settings.boardSetting, settings.sequenceSetting)
+                    settings.save(pref)
+                    isStartIndexOn = false
+                    popupBinding.popupStoneModeIndexHereBtn.setImageResource(R.drawable.board_index_here_off)
+                    toast = Toast.makeText(requireContext(), requireContext().getText(R.string.index_here_off), Toast.LENGTH_SHORT)
+                }
+                toast.show()
             }
 
             popupWindow.showAsDropDown(binding.boardMenuBtn)
@@ -238,24 +274,6 @@ class BoardFragment : Fragment() {
 
             popupWindow.showAsDropDown(binding.boardMenuBtn)
         }
-    }
-
-    private fun startIndexHere() {
-        val confirmDialog = ConfirmDialog(requireContext(), resources.getString(R.string.start_index_confirm))
-        confirmDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-        confirmDialog.setOnResponseListener(object : ConfirmDialog.OnResponseListener {
-            override fun confirm() {
-                confirmDialog.dismiss()
-                settings.sequenceSetting.startPoint = boardManager.getNowIndex() - 1
-                binding.boardBoard.updateBoardStatus(settings.boardSetting, settings.sequenceSetting)
-                settings.save(pref)
-            }
-
-            override fun refuse() {
-                confirmDialog.dismiss()
-            }
-        })
-        confirmDialog.show()
     }
 
     private fun delete() {
@@ -487,6 +505,8 @@ class BoardFragment : Fragment() {
                                 confirmDialog.dismiss()
                                 boardManager.loadNodes(SeqTree())
                                 binding.boardBoard.removeAllStones()
+                                binding.boardBoard.deleteAllDrawingElements()
+                                binding.boardSequenceTv.text = "0"
                                 editingFile = null
                                 binding.boardEditingFileNameTv.text = requireContext().getString(R.string.new_file)
                             }

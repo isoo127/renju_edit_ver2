@@ -3,7 +3,8 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:columnCount="4"
-    android:rowCount="3">
+    android:rowCount="3"
+    android:background="@color/white">
 
     <ImageButton
         android:id="@+id/popup_drawing_mode_delete_btn"

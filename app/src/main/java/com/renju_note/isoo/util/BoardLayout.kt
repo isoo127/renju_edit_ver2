@@ -385,6 +385,11 @@ class BoardLayout(context: Context, attrs: AttributeSet?) : ConstraintLayout(con
         invalidate()
     }
 
+    fun deleteAllDrawingElements() {
+        drawingElements.clear()
+        invalidate()
+    }
+
     fun deleteAllPoints() {
         points.clear()
         invalidate()
