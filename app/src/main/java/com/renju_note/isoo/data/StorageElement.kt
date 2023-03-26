@@ -1,7 +1,6 @@
 package com.renju_note.isoo.data
 
 import android.net.Uri
-import io.realm.Realm.init
 import io.realm.RealmList
 import io.realm.RealmObject
 import io.realm.annotations.Ignore

@@ -12,10 +12,11 @@
         <entry key="..\:/Users/rdrni/Projects/AndroidStudioProjects/renju_edit/app/src/main/res/drawable/setting_check_box.xml" value="0.46" />
         <entry key="..\:/Users/rdrni/Projects/AndroidStudioProjects/renju_edit/app/src/main/res/font/font.xml" value="0.4653846153846154" />
         <entry key="..\:/Users/rdrni/Projects/AndroidStudioProjects/renju_edit/app/src/main/res/layout/activity_main.xml" value="0.31431159420289856" />
+        <entry key="..\:/Users/rdrni/Projects/AndroidStudioProjects/renju_edit/app/src/main/res/layout/dialog_about.xml" value="0.75" />
         <entry key="..\:/Users/rdrni/Projects/AndroidStudioProjects/renju_edit/app/src/main/res/layout/dialog_color_picker.xml" value="0.25" />
-        <entry key="..\:/Users/rdrni/Projects/AndroidStudioProjects/renju_edit/app/src/main/res/layout/dialog_confirm.xml" value="0.43974358974358974" />
+        <entry key="..\:/Users/rdrni/Projects/AndroidStudioProjects/renju_edit/app/src/main/res/layout/dialog_confirm.xml" value="0.25" />
         <entry key="..\:/Users/rdrni/Projects/AndroidStudioProjects/renju_edit/app/src/main/res/layout/dialog_loading.xml" value="0.28675213675213673" />
-        <entry key="..\:/Users/rdrni/Projects/AndroidStudioProjects/renju_edit/app/src/main/res/layout/dialog_put_text.xml" value="0.43974358974358974" />
+        <entry key="..\:/Users/rdrni/Projects/AndroidStudioProjects/renju_edit/app/src/main/res/layout/dialog_put_text.xml" value="0.33" />
         <entry key="..\:/Users/rdrni/Projects/AndroidStudioProjects/renju_edit/app/src/main/res/layout/fragment_board.xml" value="0.31431159420289856" />
         <entry key="..\:/Users/rdrni/Projects/AndroidStudioProjects/renju_edit/app/src/main/res/layout/fragment_setting.xml" value="0.33" />
         <entry key="..\:/Users/rdrni/Projects/AndroidStudioProjects/renju_edit/app/src/main/res/layout/fragment_storage.xml" value="0.33" />

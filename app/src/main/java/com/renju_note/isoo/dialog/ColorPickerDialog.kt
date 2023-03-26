@@ -10,7 +10,6 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import androidx.core.content.ContextCompat
-import androidx.core.graphics.ColorUtils
 import com.renju_note.isoo.R
 import com.renju_note.isoo.databinding.DialogColorPickerBinding
 import com.skydoves.colorpickerview.listeners.ColorListener

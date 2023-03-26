@@ -55,6 +55,7 @@
 
     <string name="setting_sequence_visible">Show sequence</string>
     <string name="setting_text_box_visible">Show text box</string>
+    <string name="setting_next_node_visible">Show next node</string>
     <string name="setting_text_mode_on">Use text mode</string>
     <string name="setting_draw_mode_on">Use drawing mode</string>
     <string name="default_setting_warning">Are you sure you want to reset your settings?</string>

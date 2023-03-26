@@ -1,6 +1,9 @@
 package com.renju_note.isoo.fragment
 
+import android.app.ActionBar
 import android.app.Activity
+import android.app.AlertDialog
+import android.app.Dialog
 import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
@@ -20,6 +23,7 @@ import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
 import android.widget.PopupWindow
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -41,17 +45,12 @@ import com.renju_note.isoo.dialog.PutTextDialog
 import com.renju_note.isoo.util.BoardLayout
 import com.renju_note.isoo.util.LoadingAsync
 import io.realm.Realm
-import io.realm.kotlin.where
 import java.io.InputStream
 import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
 import java.io.OutputStream
-import java.text.SimpleDateFormat
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import java.util.*
-import kotlin.Comparator
-import kotlin.collections.ArrayList
 
 
 class BoardFragment : Fragment() {
@@ -89,7 +88,7 @@ class BoardFragment : Fragment() {
         buttonsClicked()
         editingTextArea()
 
-        binding.boardBoard.updateBoardStatus(settings.boardSetting, settings.sequenceSetting)
+        binding.boardBoard.updateBoardStatus(settings.boardColorSetting, settings.boardDisplaySetting)
 
         toast = Toast(requireContext())
         toast.duration = Toast.LENGTH_SHORT
@@ -137,6 +136,8 @@ class BoardFragment : Fragment() {
 
         binding.boardModeBtn.setOnClickListener {
             toast.cancel()
+            binding.boardBoard.deleteAllPoints()
+            points.clear()
             editMode = when(editMode) {
                 EditMode.PUT_STONE -> {
                     if(settings.modeSetting.canUseTextMode) {
@@ -194,16 +195,16 @@ class BoardFragment : Fragment() {
             popupBinding.popupStoneModeIndexHereBtn.setOnClickListener {
                 toast.cancel()
                 if(!isStartIndexOn) {
-                    if(boardManager.getNowIndex() == 1) settings.sequenceSetting.startPoint = 0
-                    else settings.sequenceSetting.startPoint = boardManager.getNowIndex() - 2
-                    binding.boardBoard.updateBoardStatus(settings.boardSetting, settings.sequenceSetting)
+                    if(boardManager.getNowIndex() == 1) settings.boardDisplaySetting.startPoint = 0
+                    else settings.boardDisplaySetting.startPoint = boardManager.getNowIndex() - 2
+                    binding.boardBoard.updateBoardStatus(settings.boardColorSetting, settings.boardDisplaySetting)
                     settings.save(pref)
                     isStartIndexOn = true
                     popupBinding.popupStoneModeIndexHereBtn.setImageResource(R.drawable.board_index_here_on)
                     toast = Toast.makeText(requireContext(), requireContext().getText(R.string.index_here_on), Toast.LENGTH_SHORT)
                 } else {
-                    settings.sequenceSetting.startPoint = 0
-                    binding.boardBoard.updateBoardStatus(settings.boardSetting, settings.sequenceSetting)
+                    settings.boardDisplaySetting.startPoint = 0
+                    binding.boardBoard.updateBoardStatus(settings.boardColorSetting, settings.boardDisplaySetting)
                     settings.save(pref)
                     isStartIndexOn = false
                     popupBinding.popupStoneModeIndexHereBtn.setImageResource(R.drawable.board_index_here_off)
@@ -332,7 +333,7 @@ class BoardFragment : Fragment() {
                         DrawingMode.LINE -> {
                             if(points.isEmpty()) {
                                 points.add(Pair(x, y))
-                                binding.boardBoard.addPoint(binding.boardBoard.Point(x, y, settings.boardSetting.drawLineColor))
+                                binding.boardBoard.addPoint(binding.boardBoard.Point(x, y, settings.boardColorSetting.drawLineColor))
                             } else {
                                 binding.boardBoard.deleteAllPoints()
                                 binding.boardBoard.addLine(binding.boardBoard.Line(
@@ -343,7 +344,7 @@ class BoardFragment : Fragment() {
                         DrawingMode.AREA -> {
                             if(points.isEmpty()) {
                                 points.add(Pair(x, y))
-                                binding.boardBoard.addPoint(binding.boardBoard.Point(x, y, settings.boardSetting.drawAreaColor))
+                                binding.boardBoard.addPoint(binding.boardBoard.Point(x, y, settings.boardColorSetting.drawAreaColor))
                             } else {
                                 binding.boardBoard.deleteAllPoints()
                                 binding.boardBoard.addArea(binding.boardBoard.Area(
@@ -354,7 +355,7 @@ class BoardFragment : Fragment() {
                         DrawingMode.ARROW -> {
                             if(points.isEmpty()) {
                                 points.add(Pair(x, y))
-                                binding.boardBoard.addPoint(binding.boardBoard.Point(x, y, settings.boardSetting.drawArrowColor))
+                                binding.boardBoard.addPoint(binding.boardBoard.Point(x, y, settings.boardColorSetting.drawArrowColor))
                             } else {
                                 binding.boardBoard.deleteAllPoints()
                                 binding.boardBoard.addArrow(binding.boardBoard.Arrow(
@@ -402,7 +403,7 @@ class BoardFragment : Fragment() {
     }
 
     fun updateBoard() {
-        binding.boardBoard.updateBoardStatus(settings.boardSetting, settings.sequenceSetting)
+        binding.boardBoard.updateBoardStatus(settings.boardColorSetting, settings.boardDisplaySetting)
     }
 
     private fun makeTextAreaDrawable(backgroundColor : String, strokeColor : String) : GradientDrawable {
@@ -507,7 +508,9 @@ class BoardFragment : Fragment() {
                                 boardManager.loadNodes(SeqTree())
                                 binding.boardBoard.removeAllStones()
                                 binding.boardBoard.deleteAllDrawingElements()
+                                points.clear()
                                 binding.boardSequenceTv.text = "0"
+                                binding.boardTextAreaEt.text = null
                                 editingFile = null
                                 binding.boardEditingFileNameTv.text = requireContext().getString(R.string.new_file)
                             }
@@ -529,7 +532,10 @@ class BoardFragment : Fragment() {
                         startActivityResultLoad.launch(intent)
                     }
                     R.id.about -> {
-
+                        val dialog = Dialog(requireContext())
+                        dialog.setContentView(R.layout.dialog_about)
+                        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+                        dialog.show()
                     }
                 }
             }
@@ -646,6 +652,8 @@ class BoardFragment : Fragment() {
     }
 
     fun load(uri : Uri?) {
+        binding.boardBoard.deleteAllDrawingElements()
+        points.clear()
         binding.boardBoard.removeAllStones()
         val before = ArrayList<Stone>()
 

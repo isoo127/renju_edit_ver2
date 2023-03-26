@@ -2,7 +2,7 @@ package com.renju_note.isoo.data
 
 import com.renju_note.isoo.util.PreferenceUtil
 
-data class BoardSetting (
+data class BoardColorSetting (
     var boardColor : String,
     var lineColor : String,
     var lastStoneStrokeColor : String,
@@ -14,7 +14,7 @@ data class BoardSetting (
 ) {
 
     companion object {
-        fun getDefaultSetting() : BoardSetting {
+        fun getDefaultSetting() : BoardColorSetting {
             val boardColor = "#F2CA94"
             val lineColor = "#666666"
             val lastStoneStrokeColor = "#D32560"
@@ -23,7 +23,7 @@ data class BoardSetting (
             val drawLineColor = "#FF0000"
             val drawAreaColor = "#2B000000"
             val drawArrowColor = "#65000000"
-            return BoardSetting(boardColor, lineColor, lastStoneStrokeColor, textColor, nodeColor,
+            return BoardColorSetting(boardColor, lineColor, lastStoneStrokeColor, textColor, nodeColor,
                 drawLineColor, drawAreaColor, drawArrowColor)
         }
     }

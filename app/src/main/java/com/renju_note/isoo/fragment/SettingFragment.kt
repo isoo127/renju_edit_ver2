@@ -75,12 +75,12 @@ class SettingFragment : Fragment() {
             override fun onItemClick(position: Int) {
                 when(position) {
                     0 -> {
-                        val colorPickerDialog = ColorPickerDialog(requireContext(), requireActivity(), settings.boardSetting.boardColor)
+                        val colorPickerDialog = ColorPickerDialog(requireContext(), requireActivity(), settings.boardColorSetting.boardColor)
                         colorPickerDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
                         colorPickerDialog.show()
                         colorPickerDialog.setOnApplyColorListener(object : ColorPickerDialog.OnApplyColorListener {
                             override fun onApplyColor(color: String) {
-                                settings.boardSetting.boardColor = color
+                                settings.boardColorSetting.boardColor = color
                                 binding.settingColorRv.getChildAt(position).findViewById<View>(R.id.item_color_preview).background =
                                     makePreviewDrawable(color)
                                 settings.save(pref)
@@ -89,12 +89,12 @@ class SettingFragment : Fragment() {
                         })
                     }
                     1 -> {
-                        val colorPickerDialog = ColorPickerDialog(requireContext(), requireActivity(), settings.boardSetting.lineColor)
+                        val colorPickerDialog = ColorPickerDialog(requireContext(), requireActivity(), settings.boardColorSetting.lineColor)
                         colorPickerDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
                         colorPickerDialog.show()
                         colorPickerDialog.setOnApplyColorListener(object : ColorPickerDialog.OnApplyColorListener {
                             override fun onApplyColor(color: String) {
-                                settings.boardSetting.lineColor = color
+                                settings.boardColorSetting.lineColor = color
                                 binding.settingColorRv.getChildAt(position).findViewById<View>(R.id.item_color_preview).background =
                                     makePreviewDrawable(color)
                                 settings.save(pref)
@@ -103,12 +103,12 @@ class SettingFragment : Fragment() {
                         })
                     }
                     2 -> {
-                        val colorPickerDialog = ColorPickerDialog(requireContext(), requireActivity(), settings.boardSetting.textColor)
+                        val colorPickerDialog = ColorPickerDialog(requireContext(), requireActivity(), settings.boardColorSetting.textColor)
                         colorPickerDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
                         colorPickerDialog.show()
                         colorPickerDialog.setOnApplyColorListener(object : ColorPickerDialog.OnApplyColorListener {
                             override fun onApplyColor(color: String) {
-                                settings.boardSetting.textColor = color
+                                settings.boardColorSetting.textColor = color
                                 binding.settingColorRv.getChildAt(position).findViewById<View>(R.id.item_color_preview).background =
                                     makePreviewDrawable(color)
                                 settings.save(pref)
@@ -117,12 +117,12 @@ class SettingFragment : Fragment() {
                         })
                     }
                     3 -> {
-                        val colorPickerDialog = ColorPickerDialog(requireContext(), requireActivity(), settings.boardSetting.nodeColor)
+                        val colorPickerDialog = ColorPickerDialog(requireContext(), requireActivity(), settings.boardColorSetting.nodeColor)
                         colorPickerDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
                         colorPickerDialog.show()
                         colorPickerDialog.setOnApplyColorListener(object : ColorPickerDialog.OnApplyColorListener {
                             override fun onApplyColor(color: String) {
-                                settings.boardSetting.nodeColor = color
+                                settings.boardColorSetting.nodeColor = color
                                 binding.settingColorRv.getChildAt(position).findViewById<View>(R.id.item_color_preview).background =
                                     makePreviewDrawable(color)
                                 settings.save(pref)
@@ -131,12 +131,12 @@ class SettingFragment : Fragment() {
                         })
                     }
                     4 -> {
-                        val colorPickerDialog = ColorPickerDialog(requireContext(), requireActivity(), settings.boardSetting.lastStoneStrokeColor)
+                        val colorPickerDialog = ColorPickerDialog(requireContext(), requireActivity(), settings.boardColorSetting.lastStoneStrokeColor)
                         colorPickerDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
                         colorPickerDialog.show()
                         colorPickerDialog.setOnApplyColorListener(object : ColorPickerDialog.OnApplyColorListener {
                             override fun onApplyColor(color: String) {
-                                settings.boardSetting.lastStoneStrokeColor = color
+                                settings.boardColorSetting.lastStoneStrokeColor = color
                                 binding.settingColorRv.getChildAt(position).findViewById<View>(R.id.item_color_preview).background =
                                     makePreviewDrawable(color)
                                 settings.save(pref)
@@ -187,12 +187,12 @@ class SettingFragment : Fragment() {
                         })
                     }
                     8 -> {
-                        val colorPickerDialog = ColorPickerDialog(requireContext(), requireActivity(), settings.boardSetting.drawLineColor)
+                        val colorPickerDialog = ColorPickerDialog(requireContext(), requireActivity(), settings.boardColorSetting.drawLineColor)
                         colorPickerDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
                         colorPickerDialog.show()
                         colorPickerDialog.setOnApplyColorListener(object : ColorPickerDialog.OnApplyColorListener {
                             override fun onApplyColor(color: String) {
-                                settings.boardSetting.drawLineColor = color
+                                settings.boardColorSetting.drawLineColor = color
                                 binding.settingColorRv.getChildAt(position).findViewById<View>(R.id.item_color_preview).background =
                                     makePreviewDrawable(color)
                                 settings.save(pref)
@@ -201,12 +201,12 @@ class SettingFragment : Fragment() {
                         })
                     }
                     9 -> {
-                        val colorPickerDialog = ColorPickerDialog(requireContext(), requireActivity(), settings.boardSetting.drawAreaColor)
+                        val colorPickerDialog = ColorPickerDialog(requireContext(), requireActivity(), settings.boardColorSetting.drawAreaColor)
                         colorPickerDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
                         colorPickerDialog.show()
                         colorPickerDialog.setOnApplyColorListener(object : ColorPickerDialog.OnApplyColorListener {
                             override fun onApplyColor(color: String) {
-                                settings.boardSetting.drawAreaColor = color
+                                settings.boardColorSetting.drawAreaColor = color
                                 binding.settingColorRv.getChildAt(position).findViewById<View>(R.id.item_color_preview).background =
                                     makePreviewDrawable(color)
                                 settings.save(pref)
@@ -215,12 +215,12 @@ class SettingFragment : Fragment() {
                         })
                     }
                     10 -> {
-                        val colorPickerDialog = ColorPickerDialog(requireContext(), requireActivity(), settings.boardSetting.drawArrowColor)
+                        val colorPickerDialog = ColorPickerDialog(requireContext(), requireActivity(), settings.boardColorSetting.drawArrowColor)
                         colorPickerDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
                         colorPickerDialog.show()
                         colorPickerDialog.setOnApplyColorListener(object : ColorPickerDialog.OnApplyColorListener {
                             override fun onApplyColor(color: String) {
-                                settings.boardSetting.drawArrowColor = color
+                                settings.boardColorSetting.drawArrowColor = color
                                 binding.settingColorRv.getChildAt(position).findViewById<View>(R.id.item_color_preview).background =
                                     makePreviewDrawable(color)
                                 settings.save(pref)
@@ -247,15 +247,19 @@ class SettingFragment : Fragment() {
                         settings.save(pref)
                     }
                     1 -> {
-                        settings.sequenceSetting.sequenceVisible = isCheck
+                        settings.boardDisplaySetting.sequenceVisible = isCheck
                         settings.save(pref)
                     }
                     2 -> {
+                        settings.boardDisplaySetting.nextNodeVisible = isCheck
+                        settings.save(pref)
+                    }
+                    3 -> {
                         settings.modeSetting.canUseTextMode = isCheck
                         settings.save(pref)
                         isUpdateMode = true
                     }
-                    3 -> {
+                    4 -> {
                         settings.modeSetting.canUseDrawMode = isCheck
                         settings.save(pref)
                         isUpdateMode = true

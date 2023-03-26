@@ -28,23 +28,23 @@ class SettingColorRVAdapter(val context : Context) : RecyclerView.Adapter<Settin
             when(position) {
                 0 -> {
                     binding.itemColorText.text = context.getString(R.string.setting_board_color)
-                    binding.itemColorPreview.background = makePreviewDrawable(settings.boardSetting.boardColor)
+                    binding.itemColorPreview.background = makePreviewDrawable(settings.boardColorSetting.boardColor)
                 }
                 1 -> {
                     binding.itemColorText.text = context.getString(R.string.setting_line_color)
-                    binding.itemColorPreview.background = makePreviewDrawable(settings.boardSetting.lineColor)
+                    binding.itemColorPreview.background = makePreviewDrawable(settings.boardColorSetting.lineColor)
                 }
                 2 -> {
                     binding.itemColorText.text = context.getString(R.string.setting_board_text_color)
-                    binding.itemColorPreview.background = makePreviewDrawable(settings.boardSetting.textColor)
+                    binding.itemColorPreview.background = makePreviewDrawable(settings.boardColorSetting.textColor)
                 }
                 3 -> {
                     binding.itemColorText.text = context.getString(R.string.setting_board_node_color)
-                    binding.itemColorPreview.background = makePreviewDrawable(settings.boardSetting.nodeColor)
+                    binding.itemColorPreview.background = makePreviewDrawable(settings.boardColorSetting.nodeColor)
                 }
                 4 -> {
                     binding.itemColorText.text = context.getString(R.string.setting_last_stone_color)
-                    binding.itemColorPreview.background = makePreviewDrawable(settings.boardSetting.lastStoneStrokeColor)
+                    binding.itemColorPreview.background = makePreviewDrawable(settings.boardColorSetting.lastStoneStrokeColor)
                 }
                 5 -> {
                     binding.itemColorText.text = context.getString(R.string.setting_text_box_color)
@@ -60,15 +60,15 @@ class SettingColorRVAdapter(val context : Context) : RecyclerView.Adapter<Settin
                 }
                 8 -> {
                     binding.itemColorText.text = context.getString(R.string.setting_draw_line_color)
-                    binding.itemColorPreview.background = makePreviewDrawable(settings.boardSetting.drawLineColor)
+                    binding.itemColorPreview.background = makePreviewDrawable(settings.boardColorSetting.drawLineColor)
                 }
                 9 -> {
                     binding.itemColorText.text = context.getString(R.string.setting_draw_area_color)
-                    binding.itemColorPreview.background = makePreviewDrawable(settings.boardSetting.drawAreaColor)
+                    binding.itemColorPreview.background = makePreviewDrawable(settings.boardColorSetting.drawAreaColor)
                 }
                 10 -> {
                     binding.itemColorText.text = context.getString(R.string.setting_draw_arrow_color)
-                    binding.itemColorPreview.background = makePreviewDrawable(settings.boardSetting.drawArrowColor)
+                    binding.itemColorPreview.background = makePreviewDrawable(settings.boardColorSetting.drawArrowColor)
                 }
                 else -> {
                     binding.itemColorText.text = context.getString(R.string.error)

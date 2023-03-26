@@ -5,16 +5,15 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.util.AttributeSet
-import android.util.Log
 import android.view.View
-import com.renju_note.isoo.data.BoardSetting
+import com.renju_note.isoo.data.BoardColorSetting
 import io.realm.RealmList
 
 class BoardPreview(context : Context, attrs : AttributeSet) : View(context, attrs) {
 
     private var lineInterval = 0f
     private val paint = Paint()
-    private val boardSetting = BoardSetting.getDefaultSetting()
+    private val boardColorSetting = BoardColorSetting.getDefaultSetting()
     private val stones = ArrayList<MiniStone>()
 
     inner class MiniStone(private val x : Int, private val y : Int, private val stoneColor : Int) {
@@ -26,7 +25,7 @@ class BoardPreview(context : Context, attrs : AttributeSet) : View(context, attr
     }
 
     init {
-        setBackgroundColor(Color.parseColor(boardSetting.boardColor))
+        setBackgroundColor(Color.parseColor(boardColorSetting.boardColor))
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
@@ -38,7 +37,7 @@ class BoardPreview(context : Context, attrs : AttributeSet) : View(context, attr
         super.onDraw(canvas)
         paint.isAntiAlias = true
         paint.style = Paint.Style.STROKE
-        paint.color = Color.parseColor(boardSetting.lineColor)
+        paint.color = Color.parseColor(boardColorSetting.lineColor)
         paint.strokeWidth = (width / 351.3 + 0.5).toInt().toFloat()
         canvas!!.drawRect(lineInterval*0.5f, lineInterval*0.5f, lineInterval*14.5f, lineInterval*14.5f, paint)
         stones.forEach {

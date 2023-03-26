@@ -10,28 +10,28 @@ import io.realm.RealmConfiguration
 class RenjuEditApplication : Application() {
 
     class Settings {
-        var boardSetting = BoardSetting.getDefaultSetting()
-        var sequenceSetting = SequenceSetting.getDefaultSetting()
+        var boardColorSetting = BoardColorSetting.getDefaultSetting()
+        var boardDisplaySetting = BoardDisplaySetting.getDefaultSetting()
         var textAreaSetting = TextAreaSetting.getDefaultSetting()
         var modeSetting = ModeSetting.getDefaultSetting()
 
         fun save(pref : PreferenceUtil) {
-            boardSetting.save(pref)
-            sequenceSetting.save(pref)
+            boardColorSetting.save(pref)
+            boardDisplaySetting.save(pref)
             textAreaSetting.save(pref)
             modeSetting.save(pref)
         }
 
         fun load(pref : PreferenceUtil) {
-            boardSetting.load(pref)
-            sequenceSetting.load(pref)
+            boardColorSetting.load(pref)
+            boardDisplaySetting.load(pref)
             textAreaSetting.load(pref)
             modeSetting.load(pref)
         }
 
         fun setDefaultSetting() {
-            boardSetting = BoardSetting.getDefaultSetting()
-            sequenceSetting.sequenceVisible = true
+            boardColorSetting = BoardColorSetting.getDefaultSetting()
+            boardDisplaySetting.sequenceVisible = true
             textAreaSetting = TextAreaSetting.getDefaultSetting()
             modeSetting = ModeSetting.getDefaultSetting()
         }
