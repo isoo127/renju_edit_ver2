@@ -1,21 +1,26 @@
 package com.renju_note.isoo.fragment
 
-import android.app.ActionBar
+import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Activity
-import android.app.AlertDialog
 import android.app.Dialog
 import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Rect
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.GradientDrawable
+import android.media.MediaScannerConnection
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.os.Environment
 import android.provider.MediaStore
+import android.provider.MediaStore.VOLUME_EXTERNAL
 import android.provider.OpenableColumns
 import android.text.Editable
 import android.text.TextWatcher
@@ -23,10 +28,11 @@ import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.LinearLayout
 import android.widget.PopupWindow
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import com.renju_note.isoo.R
@@ -45,12 +51,12 @@ import com.renju_note.isoo.dialog.PutTextDialog
 import com.renju_note.isoo.util.BoardLayout
 import com.renju_note.isoo.util.LoadingAsync
 import io.realm.Realm
-import java.io.InputStream
-import java.io.ObjectInputStream
-import java.io.ObjectOutputStream
-import java.io.OutputStream
+import io.realm.Realm.getApplicationContext
+import java.io.*
+import java.text.SimpleDateFormat
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.util.*
 
 
 class BoardFragment : Fragment() {
@@ -543,7 +549,24 @@ class BoardFragment : Fragment() {
         }
     }
 
+    private val requestPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
+            if (isGranted) {
+                captureBoard()
+            } else {
+                Toast.makeText(context, "Permission denied to write to external storage.", Toast.LENGTH_SHORT).show()
+            }
+        }
+
     private fun captureBoard() {
+        if (ContextCompat.checkSelfPermission(
+                requireContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE)
+            != PackageManager.PERMISSION_GRANTED
+        ) {
+            requestPermissionLauncher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+            return
+        }
+
         val layout = binding.boardContainerCl
         val width = layout.width
         val height = layout.height
@@ -563,14 +586,37 @@ class BoardFragment : Fragment() {
             put(MediaStore.Images.Media.WIDTH, width)
             put(MediaStore.Images.Media.HEIGHT, height)
         }
-        val imageUri = requireActivity().contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
-        imageUri?.let { uri ->
-            requireActivity().contentResolver.openOutputStream(uri)?.use { outputStream ->
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) { // over Android 10
+            val imageUri = requireActivity().contentResolver.insert(MediaStore.Images.Media.getContentUri(VOLUME_EXTERNAL), contentValues)
+            imageUri?.let { uri ->
+                requireActivity().contentResolver.openOutputStream(uri)?.use { outputStream ->
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
+                }
+            }
+            MediaScannerConnection.scanFile(requireContext(), arrayOf(imageUri?.path), arrayOf("image/jpeg"), null)
+            Toast.makeText(context, "Image saved to gallery", Toast.LENGTH_SHORT).show()
+        } else { // under Android 10
+            try {
+                val time = System.currentTimeMillis()
+                @SuppressLint("SimpleDateFormat") val day = SimpleDateFormat("yyyyMMddhhmmssSSS")
+                val output = day.format(Date(time))
+                val folder = Environment.getExternalStorageDirectory().absolutePath + "/DCIM/Screenshots"
+                val file = folder + File.separator + output + ".jpeg"
+                val folderPath = File(folder)
+                if (!folderPath.exists()) {
+                    val success = folderPath.mkdirs()
+                    if (!success) println("failed mkdirs")
+                }
+                val outputStream: OutputStream = FileOutputStream(file)
                 bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
+                outputStream.flush()
+                outputStream.close()
+                MediaScannerConnection.scanFile(requireContext(), arrayOf(Uri.parse("file://$file").path), arrayOf("image/jpeg"), null)
+                Toast.makeText(context, "Image saved to gallery", Toast.LENGTH_SHORT).show()
+            } catch (e: IOException) {
+                Toast.makeText(getApplicationContext(), "Failed", Toast.LENGTH_LONG).show()
             }
         }
-
-        Toast.makeText(context, "Image saved to gallery", Toast.LENGTH_SHORT).show()
     }
 
     private fun setNowEditingFile(uri : Uri) {
